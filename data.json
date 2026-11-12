@@ -19,58 +19,13 @@
   ],
   "books": [
     {
-      "bookId": "adamga",
-      "title": "Адамға қанша жер қажет",
-      "author": "Лев Толстой",
-      "description": "Жерге деген ашкөздік адамды қайда апаратыны туралы қысқа хикаят.\nАударған: Ә. Жұмабаев.",
-      "url": "books/adamga.epub",
-      "coverUrl": "img/covers/adamga.jpg",
-      "coverColor": "#5B3A1A"
-    },
-    {
-      "bookId": "gauhar",
-      "title": "Гауһар тас",
-      "author": "Ұзақбай Доспанбетов",
-      "description": "Ақсақалдың сандықта сақтаған гауһар тасы мен соның артындағы ғұмыр туралы повесть.",
-      "url": "books/gauhar.epub",
-      "coverUrl": "img/covers/gauhar.jpg",
-      "coverColor": "#1B3A70"
-    },
-    {
-      "bookId": "suiekshi",
-      "title": "Сүйекші",
-      "author": "Дулат Исабеков",
-      "description": "Шағын қаладағы тұйық мінезді молашы Үндеместің тағдыры туралы повесть.",
-      "url": "books/suiekshi.epub",
-      "coverUrl": "img/covers/suiekshi.jpg",
-      "coverColor": "#3A3A3A"
-    },
-    {
-      "bookId": "augandyq",
-      "title": "Ауғандық құстар",
-      "author": "Тынымбай Нұрмағанбетов",
-      "description": "Бүгінгі ауыл өмірі мен адам жанының нәзік қырлары туралы әңгімелер жинағы.",
-      "url": "books/augandyq.epub",
-      "coverUrl": "img/covers/augandyq.jpg",
-      "coverColor": "#2E4A3A"
-    },
-    {
-      "bookId": "isatai",
-      "title": "Исатай-Махамбет тарихы",
-      "author": "Әнес Сарай",
-      "description": "1836–1837 жылдардағы Исатай мен Махамбет бастаған көтерілістің тарихы туралы зерттеу.",
-      "url": "books/isatai.epub",
-      "coverUrl": "img/covers/isatai.jpg",
-      "coverColor": "#6B2A12"
-    },
-    {
-      "bookId": "alippe",
-      "title": "Қазақ тарихының әліппесі",
-      "author": "Мұхтар Мағауин",
-      "description": "Қазақ Ордасының құрылуы мен тағдыры туралы көпшілікке арналған тарихи еңбек.",
-      "url": "books/alippe.epub",
-      "coverUrl": "img/covers/alippe.jpg",
-      "coverColor": "#1B3A70"
+      "bookId": "ushqan-uya",
+      "title": "Ұшқан ұя",
+      "author": "Бауыржан Момышұлы",
+      "description": "Батыр жазушының балалық шағы, ата-анасы мен туған ауылы туралы өмірбаяндық роман.\nОтбасы, тәрбие және ұлттық салт-дәстүр туралы ой салатын шығарма.",
+      "url": "books/ushqan-uya.epub",
+      "coverUrl": "img/covers/ushqan-uya.jpg",
+      "coverColor": "#8E1B24"
     }
   ]
 }
