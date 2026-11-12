@@ -995,3 +995,28 @@ body.reader-page { height: 100vh; height: 100dvh; display: flex; flex-direction:
   .reader-viewer { padding: 28px 36px 28px 42px; }
   .reader-bottom, .reader-top { padding-left: max(16px, calc(50% - 380px)); padding-right: max(16px, calc(50% - 380px)); }
 }
+
+/* ---------- Оқу беті: тек кітап (таза режим) ---------- */
+.reader-mini-progress { display: none; position: fixed; left: 0; right: 0; bottom: 0; height: 4px; z-index: 20; background: rgba(11, 30, 62, .10); }
+.reader-mini-progress span { display: block; height: 100%; width: 0; background: var(--gold); transition: width .3s ease; }
+/* Жолақтар мәтіннің үстінен сырғып шығады — мәтін орнынан қозғалмайды */
+body.reader-page .reader-top {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 30; transition: transform .25s ease;
+}
+body.reader-page .reader-bottom {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 30; transition: transform .25s ease;
+  box-shadow: 0 -6px 18px rgba(11, 30, 62, .12);
+}
+body.reader-page .reader-main {
+  padding-top: calc(10px + env(safe-area-inset-top));
+  padding-bottom: calc(14px + env(safe-area-inset-bottom));
+}
+body.immersive .reader-top { transform: translateY(-110%); }
+body.immersive .reader-bottom { transform: translateY(110%); }
+body.immersive .reader-mini-progress { display: block; }
+#r-full .ic { width: 24px; height: 24px; }
+
+/* ---------- Басты экранға қосу карточкасы ---------- */
+.install-card .btn { width: 100%; margin-top: 14px; }
+.install-steps { margin: 12px 0 0; padding-left: 22px; text-align: left; }
+.install-steps li { margin: 6px 0; }
