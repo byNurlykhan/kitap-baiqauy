@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FFFFFF">
+  <title>Оқу · Кітап оқу байқауы</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%230B1E3E'/%3E%3Cpath d='M9 22V10a2 2 0 0 1 2-2h12v12H11a2 2 0 0 0 0 4h12' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="read" class="reader-page">
+  <!-- Жоғарғы жолақ: артқа, кітап атауы, әріп өлшемі -->
+  <header class="reader-top">
+    <a class="reader-icon-btn" id="r-back" href="book.html" aria-label="Кітап бетіне оралу"><i data-icon="arrowleft"></i></a>
+    <div class="reader-title"><b id="r-title">Кітап</b><span id="r-chapter"></span></div>
+    <div class="reader-font" role="group" aria-label="Әріп өлшемі">
+      <button type="button" class="reader-icon-btn" id="r-smaller" aria-label="Әріпті кішірейту">A−</button>
+      <button type="button" class="reader-icon-btn" id="r-bigger" aria-label="Әріпті үлкейту">A+</button>
+    </div>
+  </header>
+
+  <main class="reader-main">
+    <div id="r-viewer" class="reader-viewer" aria-label="Кітап мәтіні"></div>
+    <!-- Жүктелу және қате хабарламалары -->
+    <div id="r-status" class="reader-status" role="status" aria-live="polite">
+      <span class="spin" aria-hidden="true"></span>
+      <p id="r-status-text">Кітап жүктеліп жатыр…</p>
+    </div>
+  </main>
+
+  <!-- Төменгі жолақ: артқа / алға, оқу барысы -->
+  <footer class="reader-bottom">
+    <div class="reader-progress"><div class="bar thin"><span id="r-bar" style="width:0%"></span></div><span id="r-pct">0%</span></div>
+    <div class="reader-nav">
+      <button type="button" class="btn btn-ghost" id="r-prev"><i data-icon="arrowleft"></i><span>Артқа</span></button>
+      <button type="button" class="btn btn-primary" id="r-next"><span>Алға</span><i data-icon="arrowright"></i></button>
+    </div>
+    <button type="button" class="btn btn-success" id="r-finish" hidden><i data-icon="check"></i><span>Оқып бітірдім</span></button>
+  </footer>
+
+  <noscript><div class="alert alert-err">Кітапты оқу үшін браузерде JavaScript қосулы болуы керек.</div></noscript>
+
+  <script src="js/config.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/api.js"></script>
+  <!-- EPUB оқу кітапханасы (epub.js) және оған керек JSZip -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
+  <script src="js/reader.js"></script>
+</body>
+</html>
