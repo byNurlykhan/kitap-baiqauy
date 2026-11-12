@@ -389,6 +389,12 @@
     else showView('welcome');
   }
 
+  /* «Жоба туралы» блогы index.html ішіндегі <template> үлгісінен алынады (мәтін бір жерде сақталады) */
+  function decreeHTML() {
+    var t = document.getElementById('decree-tpl');
+    return t ? t.innerHTML : '';
+  }
+
   function renderHome() {
     var u = User.get();
     if (!u) return;
@@ -410,7 +416,9 @@
           '<p class="book-tile-title">' + esc(x.title) + '</p><p class="book-tile-author">' + esc(x.author) + '</p></a>';
       }).join('') + '</div>';
     }
+    html += '<div class="reveal mt-lg">' + decreeHTML() + '</div>';
     $('#view-home').innerHTML = html;
+    Icons.hydrate($('#view-home'));
     showView('home');
   }
 
@@ -431,6 +439,9 @@
   async function pageHome() {
     await Config.load();
     renderChrome();
+
+    var slot = $('#decree-slot');
+    if (slot) { slot.innerHTML = decreeHTML(); Icons.hydrate(slot); }
 
     var regForm = $('#reg-form'), loginForm = $('#login-form');
     fillWorkplaces();
