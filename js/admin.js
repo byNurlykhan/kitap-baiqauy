@@ -373,8 +373,8 @@
             '<button type="button" class="btn btn-ghost btn-sm" data-del="' + i + '">' + icon('trash') + '<span>Өшіру</span></button></div>' +
             '<div class="grid-2">' + field(i, 'title', 'Атауы', b.title, 'text', 'maxlength="200"') + field(i, 'author', 'Авторы', b.author, 'text', 'maxlength="200"') + '</div>' +
             field(i, 'description', 'Қысқа сипаттама', b.description, 'textarea') +
-            field(i, 'url', 'Кітап сілтемесі (PDF немесе веб-бет)', b.url, 'url', 'placeholder="https://..."') +
-            '<div class="grid-2">' + field(i, 'coverUrl', 'Мұқаба суретінің сілтемесі (міндетті емес)', b.coverUrl, 'url', 'placeholder="https://..."') +
+            field(i, 'url', 'Кітап файлы немесе сілтемесі (EPUB сайт ішінде ашылады)', b.url, 'text', 'placeholder="books/kitap.epub немесе https://..." autocapitalize="off" spellcheck="false"') +
+            '<div class="grid-2">' + field(i, 'coverUrl', 'Мұқаба суреті (міндетті емес)', b.coverUrl, 'text', 'placeholder="img/covers/kitap.jpg" autocapitalize="off" spellcheck="false"') +
             field(i, 'coverColor', 'Мұқаба түсі', b.coverColor || '#8A3B12', 'color') + '</div>' +
             '<div class="grid-2">' + field(i, 'bookId', 'Кітап коды (латын әріптері мен сандар)', b.bookId, 'text', 'maxlength="20"') +
             field(i, 'order', 'Реті', b.order || (i + 1), 'number', 'min="1" max="999" inputmode="numeric"') + '</div>' +

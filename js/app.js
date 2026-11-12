@@ -190,7 +190,8 @@
   function coverHTML(b) {
     var c1 = /^#[0-9a-f]{6}$/i.test(b.coverColor || '') ? b.coverColor : '#8A3B12';
     var style = '--c1:' + c1 + ';--c2:' + shade(c1, -0.55);
-    var img = /^https?:\/\//i.test(b.coverUrl || '')
+    // Мұқаба: толық сілтеме (https://...) немесе сайттағы файл (img/covers/...)
+    var img = (/^https?:\/\//i.test(b.coverUrl || '') || /^[A-Za-z0-9_\-\/]+\.(jpe?g|png|webp)$/i.test(b.coverUrl || ''))
       ? '<img src="' + esc(b.coverUrl) + '" alt="" loading="lazy" decoding="async" onerror="this.remove()">' : '';
     return '<div class="cover" style="' + style + '" aria-hidden="true">' +
       '<div class="cover-author">' + esc(b.author) + '</div>' +
@@ -612,18 +613,23 @@
       if (!bookId()) { renderCollection(); return; }
       var u = User.get();
       var b = book();
-      var hasUrl = /^https?:\/\//i.test(b.url || '');
+      // EPUB кітап платформаның ішінде (read.html) ашылады, PDF немесе сілтеме — жаңа бетте
+      var epub = /\.epub(\?|#|$)/i.test(b.url || '');
+      var hasUrl = epub || /^https?:\/\//i.test(b.url || '');
+      var href = epub ? 'read.html?id=' + encodeURIComponent(b.bookId) : esc(b.url);
+      var target = epub ? '' : ' target="_blank" rel="noopener"';
+      var openIcon = epub ? 'book' : 'external';
       var actions = '';
       if (u.readFinishedAt) {
         actions =
           '<div class="alert alert-ok">' + icon('check') + '<span>Жарайсыз! Сіз кітапты оқып бітірдіңіз.</span></div>' +
           '<a class="btn btn-primary btn-xl" href="test.html">' + icon('test') + '<span>Тестке өту</span></a>' +
-          (hasUrl ? '<a class="btn btn-ghost" id="read-btn" href="' + esc(b.url) + '" target="_blank" rel="noopener">' + icon('external') + '<span>Кітапты қайта ашу</span></a>' : '');
+          (hasUrl ? '<a class="btn btn-ghost" id="read-btn" href="' + href + '"' + target + '>' + icon(openIcon) + '<span>Кітапты қайта ашу</span></a>' : '');
       } else {
         actions =
           (hasUrl
-            ? '<a class="btn btn-primary btn-xl" id="read-btn" href="' + esc(b.url) + '" target="_blank" rel="noopener">' + icon('external') + '<span>' + (u.bookOpenedAt ? 'Оқуды жалғастыру' : 'Кітапты оқу') + '</span></a>' +
-              '<p class="muted">Кітап жаңа бетте ашылады. Оқып болған соң осы бетке оралыңыз.</p>'
+            ? '<a class="btn btn-primary btn-xl" id="read-btn" href="' + href + '"' + target + '>' + icon(openIcon) + '<span>' + (u.bookOpenedAt ? 'Оқуды жалғастыру' : 'Кітапты оқу') + '</span></a>' +
+              '<p class="muted">' + (epub ? 'Кітап осы сайттың ішінде ашылады. Тоқтаған жеріңіз сақталады.' : 'Кітап жаңа бетте ашылады. Оқып болған соң осы бетке оралыңыз.') + '</p>'
             : '<div class="alert alert-warn">' + icon('info') + '<span>Кітап әлі қосылмаған. Сәл кейінірек кіріңіз.</span></div>') +
           '<button type="button" class="btn btn-secondary" id="finish-btn">' + icon('check') + '<span>Оқып бітірдім</span></button>';
       }
