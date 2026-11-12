@@ -876,3 +876,40 @@ a.fan-item:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; b
   .decree-mark { width: 60px; height: 60px; }
   .decree-text { font-size: 1.08rem; }
 }
+
+/* ---------- Беттің төменгі бөлігі: қосымша карточкалар және логотиптер ---------- */
+.extras {
+  display: grid !important; grid-template-columns: 1fr; gap: 16px;
+  position: static !important; top: auto !important;
+  margin-top: 40px; padding-top: 28px; border-top: 1px solid var(--line);
+}
+.extras .card { margin: 0; }
+.site-copy {
+  grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px;
+  margin-top: 8px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem;
+}
+.site-copy-logos { display: inline-flex; align-items: center; gap: 12px; }
+.site-copy .logo-kitap { height: 32px; }
+.site-copy .logo-emg, .site-copy .logo-sep { height: 28px; }
+@media (min-width: 700px) { .extras { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 900px) {
+  body:not(.admin) .app { display: block; max-width: 1180px; }
+  body:not(.admin) .main { max-width: none; margin: 0; }
+}
+
+/* ---------- Баннер: компьютерде мәтін сол жақта, мұқабалар оң жақта ---------- */
+.hero-art { display: none; }
+@media (min-width: 900px) {
+  .hero { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 32px; align-items: center; padding: 52px 56px; }
+  .hero h1 { font-size: 2.6rem; line-height: 1.12; }
+  .hero h1 span { font-size: 2.1rem; margin-top: 8px; }
+  .hero-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 560px; }
+  .hero-art { display: block; }
+  .hero-art .fan { height: 290px; max-width: 420px; margin: 0 auto; }
+  .hero-art .fan-item { width: 150px; margin-left: -75px; }
+  .hero-art .fan-1 { width: 172px; margin-left: -86px; }
+  .hero-art .fan-0 { transform: translateX(-100px) rotate(-10deg); }
+  .hero-art .fan-2 { transform: translateX(100px) rotate(10deg); }
+  .hero-art .cover { box-shadow: 0 18px 40px rgba(0, 0, 0, .45); }
+}
+@media (min-width: 1100px) { .hero h1 { font-size: 2.9rem; } .hero h1 span { font-size: 2.3rem; } }
