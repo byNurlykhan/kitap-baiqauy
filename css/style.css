@@ -803,3 +803,47 @@ body.admin .side-nav a:focus-visible, body.admin .side-nav button:focus-visible 
 .chip.active { background: var(--accent); border-color: var(--accent); }
 .login-logos { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
 .brand-mark { border-radius: 10px; }
+
+/* ---------- Кітаптар жинағы (мұқабалар желпуіш сияқты) ---------- */
+.collection {
+  padding: 18px 18px 22px; border-radius: var(--r-lg); text-align: center;
+  background: linear-gradient(180deg, #EEF1F7, #E4E9F2); border: 1px solid var(--line);
+}
+.collection-meta { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: .85rem; font-weight: 600; }
+.collection-meta span { display: inline-flex; align-items: center; gap: 6px; }
+.collection-meta .ic { width: 18px; height: 18px; color: var(--gold-ink); }
+.collection h2 { margin-top: 10px; font-size: 1.3rem; }
+.collection-sub { color: var(--muted); margin-top: 2px; }
+.fan { position: relative; height: 230px; margin: 20px auto 22px; max-width: 360px; }
+.fan-item {
+  position: absolute; bottom: 0; left: 50%; width: 118px; margin-left: -59px;
+  transition: transform .25s ease; display: block; text-decoration: none;
+}
+.fan-0 { transform: translateX(-74px) rotate(-9deg); transform-origin: bottom center; z-index: 1; }
+.fan-1 { width: 136px; margin-left: -68px; z-index: 3; }
+.fan-2 { transform: translateX(74px) rotate(9deg); transform-origin: bottom center; z-index: 2; }
+a.fan-0:hover { transform: translateX(-80px) translateY(-8px) rotate(-11deg); }
+a.fan-1:hover { transform: translateY(-10px); }
+a.fan-2:hover { transform: translateX(80px) translateY(-8px) rotate(11deg); }
+a.fan-item:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; border-radius: 8px; }
+.fan-ghost .cover { box-shadow: 0 6px 16px rgba(11, 30, 62, .2); }
+.fan-ghost .cover::after { background: rgba(255, 255, 255, .14); }
+@media (min-width: 640px) {
+  .fan { height: 270px; max-width: 420px; }
+  .fan-item { width: 140px; margin-left: -70px; }
+  .fan-1 { width: 160px; margin-left: -80px; }
+  .fan-0 { transform: translateX(-92px) rotate(-9deg); }
+  .fan-2 { transform: translateX(92px) rotate(9deg); }
+  .collection .btn { width: auto; min-width: 280px; }
+}
+.collection-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; text-align: left; }
+.collection-list a {
+  display: grid; grid-template-columns: 48px minmax(0, 1fr) 24px; gap: 14px; align-items: center;
+  padding: 10px 14px; border-radius: var(--r); background: #fff; border: 1px solid var(--line);
+  color: var(--ink); text-decoration: none; min-height: 72px;
+}
+.collection-list a:hover { border-color: var(--accent); }
+.collection-list b { display: block; line-height: 1.25; }
+.collection-list span span { color: var(--muted); font-size: .9rem; }
+.cl-cover .cover { padding: 0; }
+.cl-cover .cover > * { display: none; }
