@@ -725,9 +725,11 @@ function apiAdminSaveBooks_(req) {
     const title = clean_(b.title, 200);
     if (!title) fail_('VALIDATION', n + '-кітап: атауын жазыңыз.');
     const url = clean_(b.url, 500);
-    if (url && !/^https?:\/\/\S+$/i.test(url)) fail_('VALIDATION', n + '-кітап: сілтеме https:// деп басталуы керек.');
+    // Сілтеме: https://... немесе сайттағы файл, мысалы books/kitap.epub
+    const LOCAL = /^(?!.*\.\.)[A-Za-z0-9_\-\/]+\.(epub|pdf)$/i;
+    if (url && !/^https?:\/\/\S+$/i.test(url) && !LOCAL.test(url)) fail_('VALIDATION', n + '-кітап: сілтеме https:// деп басталуы керек немесе books/kitap.epub түрінде болуы керек.');
     const cover = clean_(b.coverUrl, 500);
-    if (cover && !/^https?:\/\/\S+$/i.test(cover)) fail_('VALIDATION', n + '-кітап: мұқаба сілтемесі https:// деп басталуы керек.');
+    if (cover && !/^https?:\/\/\S+$/i.test(cover) && !/^(?!.*\.\.)[A-Za-z0-9_\-\/]+\.(jpe?g|png|webp)$/i.test(cover)) fail_('VALIDATION', n + '-кітап: мұқаба сілтемесі https:// немесе img/covers/surret.jpg түрінде болуы керек.');
     const color = /^#[0-9a-f]{6}$/i.test(String(b.coverColor || '')) ? String(b.coverColor) : '#8A3B12';
     const order = Math.max(1, Math.min(999, parseInt(b.order, 10) || n));
     return [id, safe_(title), safe_(clean_(b.author, 200)), safe_(cleanMultiline_(b.description, 1500)), url, cover, color, b.active !== false, order];
