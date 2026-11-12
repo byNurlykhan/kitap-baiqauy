@@ -37,9 +37,13 @@
       <div id="r-page" class="reader-sheet">
         <div id="r-viewer" class="reader-viewer" aria-label="Кітап мәтіні. Бетті аудару үшін саусақпен солға немесе оңға тартыңыз."></div>
         <div class="page-shade" aria-hidden="true"></div>
+        <!-- Әр беттегі ақшыл су таңба: қатысушының аты-жөні және күні (скриншот таратылса, кімдікі екені көрінеді) -->
+        <div class="watermark" id="r-wm" aria-hidden="true"></div>
       </div>
       <div id="r-back-sheet" class="page-back" aria-hidden="true"></div>
     </div>
+    <!-- Бет жасырылғанда (басқа қосымшаға өткенде, скриншот пернесі басылғанда) кітаптың орнына шығады -->
+    <div class="privacy-shield" id="r-shield" aria-hidden="true"><i data-icon="lock"></i><p>Кітап жасырылды</p></div>
     <!-- Жүктелу және қате хабарламалары -->
     <div id="r-status" class="reader-status" role="status" aria-live="polite">
       <span class="spin" aria-hidden="true"></span>
