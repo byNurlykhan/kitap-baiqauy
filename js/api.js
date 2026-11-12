@@ -142,6 +142,13 @@
   };
 
   window.addEventListener('online', function () { Queue.flush(); });
+
+  // Басты экранға қосу және байланыссыз ашу үшін service worker (тек https сайтта)
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function () { /* елемейміз */ });
+    });
+  }
   document.addEventListener('visibilitychange', function () { if (!document.hidden) Queue.flush(); });
 
   window.API = {

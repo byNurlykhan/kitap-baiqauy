@@ -114,11 +114,14 @@
     if (loc && loc.atEnd) pct = 100;
     var ready = b && b.locations && b.locations.length();
     $('r-bar').style.width = pct + '%';
+    $('r-mini').style.width = pct + '%';
     // Пайыз беттер картасы дайын болғанда ғана көрсетіледі (үлкен кітапта бірнеше секунд)
     $('r-pct').textContent = ready || (loc && loc.atEnd) ? pct + '%' : '…';
     state.atEnd = !!(loc && loc.atEnd) || pct >= 98;
     var u = LS.get('kb_user') || {};
     $('r-finish').hidden = !state.atEnd || !!u.readFinishedAt;
+    // Кітаптың соңында «Оқып бітірдім» батырмасы көрінуі үшін жолақтарды шығарамыз
+    if (state.atEnd && !u.readFinishedAt && document.body.classList.contains('immersive')) setImmersive(false);
     $('r-prev').disabled = !!(loc && loc.atStart);
     $('r-next').disabled = !!(loc && loc.atEnd);
   }
@@ -240,6 +243,7 @@
       var x = e.clientX % w;
       if (x < w * 0.3) turn(-1);
       else if (x > w * 0.7) turn(1);
+      else setImmersive(!document.body.classList.contains('immersive')); // ортасын басса — батырмалар шығады/жасырылады
     });
 
     var shown = false;
@@ -248,6 +252,7 @@
       shown = true;
       hideStatus();
       markOpened();
+      setTimeout(startFocusMode, 500);
     }
     rendition.on('rendered', onShown);
     rendition.on('relocated', function (loc) {
@@ -378,6 +383,66 @@
 
   function turn(dir) { if (dir > 0) goNext(); else goPrev(); }
 
+  /* ==========================================================
+     Тек кітап: таза режим және толық экран
+     - Таза режим: жоғарғы және төменгі жолақтар жасырылады, беттің ортасын басса қайта шығады.
+     - Толық экран: браузердің мекенжай және вкладкалар жолағы жасырылады (Android, компьютер).
+       iPhone Safari беттің толық экранына рұқсат бермейді — онда «Басты экранға қосу» көмектеседі.
+     ========================================================== */
+  var root = document.documentElement;
+  var fsSupported = !!(root.requestFullscreen || root.webkitRequestFullscreen) &&
+    (document.fullscreenEnabled !== false && document.webkitFullscreenEnabled !== false);
+  function isFullscreen() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+  function enterFullscreen() {
+    try {
+      var p = root.requestFullscreen ? root.requestFullscreen({ navigationUI: 'hide' }) : root.webkitRequestFullscreen();
+      if (p && p.catch) p.catch(function () { /* браузер рұқсат бермеді */ });
+    } catch (e) { /* елемейміз */ }
+  }
+  function exitFullscreen() {
+    try {
+      var p = document.exitFullscreen ? document.exitFullscreen() : document.webkitExitFullscreen();
+      if (p && p.catch) p.catch(function () {});
+    } catch (e) { /* елемейміз */ }
+  }
+  function syncFullButton() {
+    var b = $('r-full');
+    if (!fsSupported) { b.hidden = true; return; }
+    b.hidden = false;
+    var on = isFullscreen();
+    b.innerHTML = Icons.svg(on ? 'minimize' : 'maximize');
+    b.setAttribute('aria-label', on ? 'Толық экраннан шығу' : 'Толық экранда оқу');
+  }
+  document.addEventListener('fullscreenchange', syncFullButton);
+  document.addEventListener('webkitfullscreenchange', syncFullButton);
+
+  // Жолақтар мәтіннің үстінен сырғиды, сондықтан мәтінді қайта орналастыру керек емес
+  function setImmersive(on) {
+    document.body.classList.toggle('immersive', !!on);
+  }
+
+  async function startFocusMode() {
+    syncFullButton();
+    // Бір рет қана ұсынамыз: толық экранға тек адамның өз басуымен кіруге болады
+    var asked = false;
+    try { asked = sessionStorage.getItem('kb_fs_asked') === '1'; sessionStorage.setItem('kb_fs_asked', '1'); } catch (e) { /* елемейміз */ }
+    if (fsSupported && !isFullscreen() && !asked) {
+      var go = await UI.modal({
+        icon: 'maximize', tone: 'accent', title: 'Кітапты толық экранда оқисыз ба?',
+        text: 'Экранда тек кітап қалады. Батырмаларды көру үшін беттің ортасын басыңыз.',
+        buttons: [
+          { label: 'Толық экранда оқу', value: true, icon: 'maximize' },
+          { label: 'Жоқ, осылай оқимын', value: false, kind: 'btn-ghost', icon: 'book' }
+        ]
+      });
+      if (go) enterFullscreen();
+    } else if (!LS.get('kb_imm_hint')) {
+      UI.toast('Батырмаларды көру үшін беттің ортасын басыңыз.');
+    }
+    LS.set('kb_imm_hint', 1);
+    setImmersive(true);
+  }
+
   /* Саусақпен (немесе тінтуірмен) тартып аудару. Оқиғалар кітап мәтінінің ішінен келеді. */
   function bindDrag(doc) {
     try { doc.documentElement.style.touchAction = 'pan-y pinch-zoom'; } catch (e) { /* елемейміз */ }
@@ -434,6 +499,7 @@
   $('r-smaller').addEventListener('click', function () { setFont(-FONT_STEP); });
   $('r-bigger').addEventListener('click', function () { setFont(FONT_STEP); });
   $('r-finish').addEventListener('click', finish);
+  $('r-full').addEventListener('click', function () { if (isFullscreen()) exitFullscreen(); else enterFullscreen(); });
   document.addEventListener('keydown', onKey);
   setFont(0);
 

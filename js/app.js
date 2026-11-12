@@ -293,6 +293,50 @@
     renderExtras();
   }
 
+  /* ---------- Басты экранға қосу ----------
+     Android/компьютер: браузердің өз терезесі шығады. iPhone: қысқа нұсқаулық көрсетіледі. */
+  var installEvent = null;
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); installEvent = e; });
+  window.addEventListener('appinstalled', function () { installEvent = null; renderExtras(); });
+  function isStandalone() {
+    return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+  }
+  function isIOS() {
+    return /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }
+  function installCardHTML() {
+    if (isStandalone()) return '';
+    return '<section class="card install-card reveal"><h3>' + icon('phone') + '<span>Басты экранға қосу</span></h3>' +
+      '<p>Сайтты телефонның басты экранына қосыңыз. Сонда ол браузер жолақтарынсыз, жеке қосымша сияқты ашылады.</p>' +
+      '<button type="button" class="btn btn-secondary" data-install>' + icon('plus') + '<span>Басты экранға қосу</span></button></section>';
+  }
+  async function install() {
+    if (installEvent) {
+      installEvent.prompt();
+      try { await installEvent.userChoice; } catch (e) { /* елемейміз */ }
+      installEvent = null;
+      return;
+    }
+    if (isIOS()) {
+      await UI.modal({
+        icon: 'share', tone: 'accent', title: 'iPhone-да басты экранға қосу',
+        text: '1. Safari-дің төменгі жағындағы «Бөлісу» белгісін басыңыз (жоғары қараған көрсеткі бар шаршы). ' +
+          '2. Тізімнен «Басты экранға қосу» (На экран «Домой») таңдаңыз. 3. «Қосу» батырмасын басыңыз.',
+        buttons: [{ label: 'Түсінікті', value: true, icon: 'check' }]
+      });
+      return;
+    }
+    await UI.modal({
+      icon: 'phone', tone: 'accent', title: 'Басты экранға қосу',
+      text: 'Браузердің мәзірін ашыңыз (жоғарғы оң жақтағы ⋮ белгісі) және «Басты экранға қосу» немесе «Қолданбаны орнату» таңдаңыз.',
+      buttons: [{ label: 'Түсінікті', value: true, icon: 'check' }]
+    });
+  }
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest ? e.target.closest('[data-install]') : null;
+    if (t) install();
+  });
+
   function renderExtras() {
     var el = $('#extras');
     if (!el) return;
@@ -308,6 +352,7 @@
     if (c.helpText) {
       html += '<section class="card card-soft reveal"><h3>' + icon('info') + '<span>Көмек керек пе?</span></h3><p>' + esc(c.helpText) + '</p></section>';
     }
+    html += installCardHTML();
     // Беттің ең төменгі жолы: логотиптер және жоба атауы
     html += '<div class="site-copy"><span class="site-copy-logos">' +
       '<span class="logo-kitap"><img src="img/logo.jpg" alt="Кітап оқитын ұлт" width="1200" height="849" loading="lazy"></span>' +
