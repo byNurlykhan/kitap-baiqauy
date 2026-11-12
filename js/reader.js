@@ -123,8 +123,6 @@
     state.atEnd = !!(loc && loc.atEnd) || pct >= 98;
     var u = LS.get('kb_user') || {};
     $('r-finish').hidden = !state.atEnd || !!u.readFinishedAt;
-    // Кітаптың соңында «Оқып бітірдім» батырмасы көрінуі үшін жолақтарды шығарамыз
-    if (state.atEnd && !u.readFinishedAt && document.body.classList.contains('immersive')) setImmersive(false);
     $('r-prev').disabled = !!(loc && loc.atStart);
     $('r-next').disabled = !!(loc && loc.atEnd);
   }
@@ -247,7 +245,6 @@
       var x = e.clientX % w;
       if (x < w * 0.3) turn(-1);
       else if (x > w * 0.7) turn(1);
-      else setImmersive(!document.body.classList.contains('immersive')); // ортасын басса — батырмалар шығады/жасырылады
     });
 
     var shown = false;
@@ -301,46 +298,11 @@
   }
 
   /* ==========================================================
-     Парақ аудару (кәдімгі кітап сияқты)
-     Алға: бет оң жақ шетінен көтеріліп, сол жақтағы түптемеге қарай аударылады.
-     Артқа: алдыңғы бет сол жақтан қайта жабылып келеді.
-     Саусақпен тартқанда бет саусақтың соңынан ереді; жартысына жетпей жіберсе — орнына оралады.
+     Парақ аудару: «Артқа» / «Алға» батырмалары, беттің шетін басу,
+     саусақпен солға немесе оңға сырғыту. Бет анимациясыз бірден ауысады.
      ========================================================== */
   var turning = false;
   var lastDragAt = 0;
-  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  function sheetEl() { return $('r-page'); }
-  function backEl() { return $('r-back-sheet'); }
-
-  // Бет: 0° — жатыр, -90° — тік тұр (көрінбейді). Көлеңке бұрышқа қарай қоюланады.
-  function pageAngle(a) {
-    var s = sheetEl();
-    s.style.transform = a ? 'rotateY(' + a + 'deg)' : '';
-    s.querySelector('.page-shade').style.opacity = String(Math.min(0.6, Math.abs(a) / 90 * 0.6));
-  }
-  // Беттің арқа жағы: -90° — тік, -180° — сол жаққа жатып, жасырынады.
-  function backAngle(a) {
-    var b = backEl();
-    if (a <= -179.5) { b.style.display = 'none'; return; }
-    b.style.display = 'block';
-    b.style.transform = 'rotateY(' + a + 'deg)';
-    b.style.setProperty('--shade', String(Math.max(0, (a + 180) / 90) * 0.35));
-  }
-
-  function tween(from, to, ms, fn) {
-    return new Promise(function (res) {
-      var t0 = 0;
-      function step(t) {
-        if (!t0) t0 = t;
-        var k = Math.min(1, (t - t0) / ms);
-        var e = 1 - Math.pow(1 - k, 3);
-        fn(from + (to - from) * e);
-        if (k < 1) requestAnimationFrame(step); else res();
-      }
-      requestAnimationFrame(step);
-    });
-  }
 
   // epub.js кейде уәдесін аяқтамайды — сондықтан ең көбі 1.5 секунд күтеміз
   function settle(p) {
@@ -350,7 +312,8 @@
     var r = state.rendition;
     try { return dir > 0 ? r.next() : r.prev(); } catch (e) { return null; }
   }
-  /* epub.js «relocated» оқиғасы кейде шықпай қалады (әсіресе артқа аударғанда, бөлшек пиксельде).
+
+  /* epub.js «relocated» оқиғасы кейде шықпай қалады (әсіресе артқа аударғанда).
      Сондықтан әр аударудан кейін оқыған орынды беттің нақты күйінен өзіміз есептеп сақтаймыз. */
   function syncLocation() {
     var r = state.rendition;
@@ -363,8 +326,6 @@
     $('r-chapter').textContent = chapterTitle(loc.start.href);
     updateProgress(loc);
   }
-
-  // epub.js бетті айналдыруды бірден аяқтамайды — орынды бірнеше рет қайта оқимыз
   var syncTimers = [];
   function syncSoon() {
     syncTimers.forEach(clearTimeout);
@@ -378,42 +339,39 @@
     return dir > 0 ? !loc.atEnd : !loc.atStart;
   }
 
-  async function bounce(dir) {
-    if (dir > 0) { await tween(0, -14, 140, pageAngle); await tween(-14, 0, 200, pageAngle); }
-  }
-
-  async function goNext(from) {
-    var r = state.rendition;
-    if (!r || turning) return;
-    if (!canGo(1)) { turning = true; await bounce(1); turning = false; return; }
+  async function turn(dir) {
+    if (!state.rendition || turning || !canGo(dir)) return;
     turning = true;
-    if (reduceMotion) { await settle(call(1)); syncSoon(); turning = false; return; }
-    await tween(from || 0, -90, 230, pageAngle);       // бет көтеріледі
-    await settle(call(1));                               // мәтін келесі бетке ауысады
+    await settle(call(dir));
     syncSoon();
-    pageAngle(0);
-    backAngle(-90);
-    await tween(-90, -180, 260, backAngle);              // арқа жағы сол жаққа жатады
-    backAngle(-180);
-    turning = false;
+    setTimeout(function () { turning = false; }, 150);
   }
 
-  async function goPrev(from) {
-    var r = state.rendition;
-    if (!r || turning || !canGo(-1)) return;
-    turning = true;
-    if (reduceMotion) { await settle(call(-1)); syncSoon(); turning = false; return; }
-    await tween(from == null ? -180 : from, -90, 230, backAngle); // бет сол жақтан көтеріледі
-    backAngle(-180);
-    pageAngle(-90);
-    await settle(call(-1));
-    syncSoon();
-    await tween(-90, 0, 260, pageAngle);                 // алдыңғы бет орнына жатады
-    pageAngle(0);
-    turning = false;
+  /* Саусақпен сырғыту: солға — алға, оңға — артқа.
+     Көлденең сырғытқанда браузердің өз қимылы бөгеледі, сондықтан сырғыту үзілмейді. */
+  function bindDrag(doc) {
+    try { doc.documentElement.style.touchAction = 'pan-y pinch-zoom'; } catch (e) { /* елемейміз */ }
+    var d = null;
+    doc.addEventListener('touchstart', function (e) {
+      if (e.touches.length !== 1) { d = null; return; }
+      d = { x: e.touches[0].clientX, y: e.touches[0].clientY, horiz: false };
+    }, { passive: true });
+    doc.addEventListener('touchmove', function (e) {
+      if (!d || e.touches.length !== 1) return;
+      var dx = e.touches[0].clientX - d.x, dy = e.touches[0].clientY - d.y;
+      if (!d.horiz && Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.2) d.horiz = true;
+      if (d.horiz && e.cancelable) e.preventDefault();
+    }, { passive: false });
+    doc.addEventListener('touchend', function (e) {
+      if (!d) return;
+      var t = e.changedTouches && e.changedTouches[0];
+      var dx = t ? t.clientX - d.x : 0;
+      var horiz = d.horiz;
+      d = null;
+      if (horiz && Math.abs(dx) > 40) { lastDragAt = Date.now(); turn(dx < 0 ? 1 : -1); }
+    }, { passive: true });
+    doc.addEventListener('touchcancel', function () { d = null; }, { passive: true });
   }
-
-  function turn(dir) { if (dir > 0) goNext(); else goPrev(); }
 
   /* ==========================================================
      Тек кітап: таза режим және толық экран
@@ -448,11 +406,6 @@
   document.addEventListener('fullscreenchange', syncFullButton);
   document.addEventListener('webkitfullscreenchange', syncFullButton);
 
-  // Жолақтар мәтіннің үстінен сырғиды, сондықтан мәтінді қайта орналастыру керек емес
-  function setImmersive(on) {
-    document.body.classList.toggle('immersive', !!on);
-  }
-
   async function startFocusMode() {
     syncFullButton();
     // Бір рет қана ұсынамыз: толық экранға тек адамның өз басуымен кіруге болады
@@ -461,125 +414,23 @@
     if (fsSupported && !isFullscreen() && !asked) {
       var go = await UI.modal({
         icon: 'maximize', tone: 'accent', title: 'Кітапты толық экранда оқисыз ба?',
-        text: 'Экранда тек кітап қалады. Батырмаларды көру үшін беттің ортасын басыңыз.',
+        text: 'Браузердің жоғарғы жолағы жасырылады, экранда тек кітап пен батырмалар қалады.',
         buttons: [
           { label: 'Толық экранда оқу', value: true, icon: 'maximize' },
           { label: 'Жоқ, осылай оқимын', value: false, kind: 'btn-ghost', icon: 'book' }
         ]
       });
       if (go) enterFullscreen();
-    } else if (!LS.get('kb_imm_hint')) {
-      UI.toast('Батырмаларды көру үшін беттің ортасын басыңыз.');
     }
-    LS.set('kb_imm_hint', 1);
-    setImmersive(true);
   }
 
   /* Саусақпен (немесе тінтуірмен) тартып аудару. Оқиғалар кітап мәтінінің ішінен келеді. */
-  /* Телефонда сенсорлық оқиғалар (touch*) тікелей ұсталады: көлденең тартқанда браузердің өз
-     қимылы (айналдыру, артқа өту) preventDefault арқылы бөгеледі, сондықтан тарту үзілмейді.
-     Компьютерде тінтуір (pointer*) арқылы жұмыс істейді. Бір тартуды екі рет өңдемеу үшін
-     сенсорлық оқиға келген соң pointer оқиғалары еленбейді. */
-  function bindDrag(doc) {
-    try {
-      doc.documentElement.style.touchAction = 'pan-y pinch-zoom';
-      doc.documentElement.style.webkitUserSelect = 'none';
-      doc.body.style.overscrollBehavior = 'none';
-    } catch (e) { /* елемейміз */ }
-    var d = null;
-    var lastTouch = 0;
-    function width() { return sheetEl().offsetWidth || window.innerWidth; }
-
-    function start(x, y) {
-      if (turning) { d = null; return; }
-      d = { x: x, y: y, lx: x, dir: 0, a: 0, w: width() };
-    }
-    // true қайтарса — бұл көлденең тарту, браузердің өз қимылын тоқтату керек
-    function move(x, y) {
-      if (!d || turning) return false;
-      var dx = x - d.x, dy = y - d.y;
-      d.lx = x;
-      if (!d.dir && !d.blocked) {
-        if (Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy) * 1.2) return false;
-        d.dir = dx < 0 ? 1 : -1;
-        if (!canGo(d.dir) || reduceMotion) { d.blocked = d.dir; d.dir = 0; return true; }
-      }
-      if (d.blocked) return true;
-      if (d.dir > 0) { d.a = Math.max(-88, Math.min(0, dx / d.w * 150)); pageAngle(d.a); }
-      else { d.a = -180 + Math.max(0, Math.min(88, dx / d.w * 150)); backAngle(d.a); }
-      return true;
-    }
-    function end(x) {
-      if (!d) return;
-      var cur = d; d = null;
-      var dx = (x != null ? x : cur.lx) - cur.x;
-      if (cur.dir || cur.blocked) lastDragAt = Date.now();
-      if (cur.blocked) {
-        if (reduceMotion && Math.abs(dx) > 50) turn(cur.blocked); // анимациясыз режимде жай ауыстырамыз
-        else if (cur.blocked > 0) bounce(1);
-        return;
-      }
-      if (cur.dir > 0) {
-        // Жартысына жеткізсе немесе тез сілтесе (60px-тен көп) — бет аударылады
-        if (cur.a < -28 || dx < -60) goNext(cur.a);
-        else { turning = true; tween(cur.a, 0, 200, pageAngle).then(function () { turning = false; }); }
-      } else if (cur.dir < 0) {
-        if (cur.a > -152 || dx > 60) goPrev(cur.a);
-        else { turning = true; tween(cur.a, -180, 200, backAngle).then(function () { backAngle(-180); turning = false; }); }
-      }
-    }
-
-    // --- Сенсорлы экран ---
-    doc.addEventListener('touchstart', function (e) {
-      lastTouch = Date.now();
-      if (e.touches.length !== 1) { d = null; return; } // екі саусақпен — үлкейту, тарту емес
-      start(e.touches[0].clientX, e.touches[0].clientY);
-    }, { passive: true });
-    doc.addEventListener('touchmove', function (e) {
-      lastTouch = Date.now();
-      if (e.touches.length !== 1) return;
-      if (move(e.touches[0].clientX, e.touches[0].clientY) && e.cancelable) e.preventDefault();
-    }, { passive: false });
-    doc.addEventListener('touchend', function (e) {
-      lastTouch = Date.now();
-      var t = e.changedTouches && e.changedTouches[0];
-      end(t ? t.clientX : null);
-    }, { passive: true });
-    doc.addEventListener('touchcancel', function () {
-      lastTouch = Date.now();
-      end(null); // браузер үзсе де, жеткен жерге қарай шешеміз
-    }, { passive: true });
-
-    // --- Тінтуір (компьютер) ---
-    function fromTouch(e) { return e.pointerType === 'touch' || e.pointerType === 'pen' || Date.now() - lastTouch < 800; }
-    doc.addEventListener('pointerdown', function (e) {
-      if (fromTouch(e) || e.button !== 0) return;
-      start(e.clientX, e.clientY);
-    });
-    doc.addEventListener('pointermove', function (e) { if (!fromTouch(e)) move(e.clientX, e.clientY); });
-    doc.addEventListener('pointerup', function (e) { if (!fromTouch(e)) end(e.clientX); });
-    doc.addEventListener('pointercancel', function (e) { if (!fromTouch(e)) end(null); });
-  }
-
   /* ==========================================================
      Кітапты көшіруден қорғау
      Веб-сайт телефонның өз скриншотын толық бөгей алмайды. Сондықтан:
-     - әр бетте қатысушының аты-жөні жазылған ақшыл су таңба тұрады (таратылған сурет кімнен шыққаны көрінеді);
      - мәтінді белгілеу, көшіру, ұзақ басып мәзір ашу, сүйреп алу, басып шығару және сақтау бөгеледі;
      - басқа қосымшаға өткенде немесе скриншот пернесі (PrintScreen) басылғанда кітап бұлдырланады.
      ========================================================== */
-  function setWatermark() {
-    var u = LS.get('kb_user') || {};
-    var d = new Date();
-    var p2 = function (n) { return (n < 10 ? '0' : '') + n; };
-    var text = (u.fullName || 'Қатысушы') + ' · ' + p2(d.getDate()) + '.' + p2(d.getMonth() + 1) + '.' + d.getFullYear();
-    var safe = esc(text);
-    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="170">' +
-      '<text x="150" y="95" text-anchor="middle" transform="rotate(-28 150 85)" ' +
-      'font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="rgba(11,30,62,0.11)">' + safe + '</text></svg>';
-    $('r-wm').style.backgroundImage = 'url("data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg) + '")';
-  }
-
   var shieldTimer;
   function shield(on, ms) {
     clearTimeout(shieldTimer);
@@ -592,7 +443,12 @@
     var k = (e.key || '').toLowerCase();
     if (k === 'printscreen') {
       shield(true, 2000);
-      try { if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(''); } catch (err) { /* елемейміз */ }
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          var w = navigator.clipboard.writeText('');
+          if (w && w.catch) w.catch(function () { /* бет белсенді болмаса, браузер рұқсат бермейді */ });
+        }
+      } catch (err) { /* елемейміз */ }
       return;
     }
     if ((e.ctrlKey || e.metaKey) && (k === 'c' || k === 'x' || k === 'a' || k === 's' || k === 'p' || k === 'u')) {
@@ -624,7 +480,6 @@
   window.addEventListener('pageshow', function () { shield(false); }); // «Артқа» арқылы қайта ашылғанда
   window.addEventListener('beforeprint', function () { shield(true); });
   window.addEventListener('afterprint', function () { shield(false); });
-  setWatermark();
 
   function onKey(e) {
     if (e.key === 'ArrowRight' || e.key === 'PageDown') turn(1);
