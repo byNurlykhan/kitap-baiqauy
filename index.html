@@ -33,6 +33,7 @@
               <button type="button" class="btn btn-outline-light btn-xl" data-go="login"><i data-icon="login"></i><span>Мен бұрын тіркелгенмін</span></button>
             </div>
           </div>
+          <div class="reveal" id="decree-slot"></div>
           <h2 class="section-title reveal">Қалай қатысамын?</h2>
           <ol class="howto reveal">
             <li><span class="num">1</span><div><b>Тіркелу</b><span class="txt">Атыңызды, ЖСН және телефон нөміріңізді жазасыз</span></div></li>
@@ -122,6 +123,17 @@
           </div>
         </form>
       </section>
+
+      <!-- Жоба туралы блок: бастапқы бетте де, қатысушының басты бетінде де көрсетіледі -->
+      <template id="decree-tpl">
+        <section class="decree" aria-labelledby="decree-title">
+          <div class="decree-mark" aria-hidden="true"><i data-icon="award"></i></div>
+          <div>
+            <p class="decree-eyebrow" id="decree-title">Жоба туралы</p>
+            <p class="decree-text"><b>«Кітап оқитын ұлт»</b> жобасы Қазақстан Республикасының Президенті Қасым-Жомарт Тоқаевтың 2026 жылғы 16 мамырдағы <b>«Кітап оқу мәдениетін дамыту және зерделі ұлт қалыптастыру жөніндегі шаралар туралы»</b> Жарлығын іске асыру мақсатында жүзеге асырылуда.</p>
+          </div>
+        </section>
+      </template>
 
       <!-- 4. Тіркелген қатысушының басты беті (app.js толтырады) -->
       <section id="view-home" hidden></section>
