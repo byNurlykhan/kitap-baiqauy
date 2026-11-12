@@ -7,7 +7,9 @@
 
   var LS = API.LS;
   var esc = UI.esc;
-  var CACHE_NAME = 'kb-books-v1';
+  // Кітап файлы өзгергенде нұсқаны көтереміз: телефондағы ескі көшірме жойылып, жаңасы жүктеледі
+  var CACHE_NAME = 'kb-books-v2';
+  try { caches.delete('kb-books-v1'); } catch (e) { /* елемейміз */ }
   var FONT_MIN = 90, FONT_MAX = 200, FONT_STEP = 10;
 
   function $(id) { return document.getElementById(id); }
