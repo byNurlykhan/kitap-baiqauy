@@ -937,13 +937,44 @@ body.reader-page { height: 100vh; height: 100dvh; display: flex; flex-direction:
 .reader-title span { color: var(--muted); font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .reader-font { display: flex; gap: 6px; }
 
-.reader-main { flex: 1; min-height: 0; position: relative; padding: 10px; }
+.reader-main { flex: 1; min-height: 0; position: relative; padding: 10px 14px 10px 10px; perspective: 1800px; overflow: hidden; }
+/* Кітап: астында бірнеше парақ жиегі көрінеді, сол жақта түптеменің көлеңкесі */
+.reader-book { position: relative; height: 100%; max-width: 760px; margin: 0 auto; transform-style: preserve-3d; }
+/* Аударылып жатқан беттің астындағы келесі парақ (қағаз түсі, жоларалық сызықтарсыз) */
+.reader-book::before {
+  content: ""; position: absolute; inset: 0; border-radius: 4px 12px 12px 4px;
+  background: linear-gradient(90deg, #E9E4DA 0%, #FBF9F5 6%, #FBF9F5 100%);
+  box-shadow: 3px 0 0 #DCD7CE, 6px 0 0 #D2CCC1, 9px 0 0 #C9C2B5, 0 8px 22px rgba(11, 30, 62, .14);
+}
+.reader-sheet {
+  position: absolute; inset: 0; transform-origin: left center; transform-style: preserve-3d;
+  will-change: transform; border-radius: 4px 12px 12px 4px;
+  box-shadow: 2px 0 0 #fff, 3px 0 0 #DCD7CE, 5px 0 0 #fff, 6px 0 0 #D2CCC1, 8px 0 0 #fff, 9px 0 0 #C9C2B5, 0 8px 22px rgba(11, 30, 62, .14);
+}
 .reader-viewer {
-  height: 100%; max-width: 760px; margin: 0 auto; background: #fff;
-  border-radius: 12px; box-shadow: var(--sh-1); padding: 14px 10px; overflow: hidden;
+  position: relative; height: 100%; background: #fff;
+  border-radius: 4px 12px 12px 4px; padding: 14px 10px 14px 16px; overflow: hidden;
+}
+.reader-viewer::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 14px; z-index: 2; pointer-events: none;
+  background: linear-gradient(90deg, rgba(11, 30, 62, .14), rgba(11, 30, 62, 0));
+}
+.page-shade {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0; border-radius: 4px 12px 12px 4px;
+  background: linear-gradient(90deg, rgba(11, 30, 62, 0) 0%, rgba(11, 30, 62, .25) 55%, rgba(11, 30, 62, .55) 100%);
+}
+/* Аударылып жатқан беттің арқа жағы (қағаз түсі) */
+.page-back {
+  --shade: 0;
+  display: none; position: absolute; inset: 0; transform-origin: left center; pointer-events: none;
+  border-radius: 4px 12px 12px 4px; backface-visibility: visible;
+  background:
+    linear-gradient(90deg, rgba(11, 30, 62, calc(var(--shade) * 1)) 0%, rgba(11, 30, 62, 0) 70%),
+    linear-gradient(90deg, #EFEAE1 0%, #FBF9F5 35%, #F4F0E8 100%);
+  box-shadow: 0 8px 26px rgba(11, 30, 62, .22);
 }
 .reader-status {
-  position: absolute; inset: 10px; max-width: 760px; margin: 0 auto;
+  position: absolute; inset: 10px; z-index: 5; max-width: 760px; margin: 0 auto;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
   padding: 24px; text-align: center; background: #fff; border-radius: 12px; color: var(--ink-2); font-weight: 600;
 }
@@ -961,6 +992,6 @@ body.reader-page { height: 100vh; height: 100dvh; display: flex; flex-direction:
 .reader-nav .btn { min-height: 56px; }
 @media (min-width: 900px) {
   .reader-main { padding: 20px; }
-  .reader-viewer { padding: 28px 36px; }
+  .reader-viewer { padding: 28px 36px 28px 42px; }
   .reader-bottom, .reader-top { padding-left: max(16px, calc(50% - 380px)); padding-right: max(16px, calc(50% - 380px)); }
 }
