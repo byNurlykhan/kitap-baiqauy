@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#FAF6F0">
+  <meta name="description" content="Кітап оқу байқауы: тіркеліңіз, кітапты оқыңыз, тест тапсырыңыз.">
+  <title>Кітап оқу байқауы</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23B84A00'/%3E%3Cpath d='M9 22V10a2 2 0 0 1 2-2h12v12H11a2 2 0 0 0 0 4h12' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <!-- Inter: Google Fonts css2 қазақ әріптеріне керек cyrillic және cyrillic-ext бөліктерін өзі қосады -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="home" class="guest">
+  <div class="app">
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main">
+      <div class="topbar" id="topbar"></div>
+
+      <!-- 1. Қонақ: бастапқы бет -->
+      <section id="view-welcome" hidden>
+        <div class="welcome">
+          <div class="logo-card reveal"><img src="img/logo.jpg" alt="Кітап оқитын ұлт" width="1200" height="849" decoding="async"></div>
+          <p class="eyebrow reveal" data-bind="title">Кітап оқу байқауы</p>
+          <h1 class="reveal">Кітап оқыңыз. Біліміңізді тексеріңіз.</h1>
+          <p class="lead reveal">Қатысу оңай. Бар болғаны 3 қадам.</p>
+          <ol class="howto reveal">
+            <li><span class="num">1</span><div><b>Тіркелу</b><span class="txt">Атыңызды, ЖСН және телефон нөміріңізді жазасыз</span></div></li>
+            <li><span class="num">2</span><div><b>Кітап</b><span class="txt">Кітапты оқып, «Оқып бітірдім» батырмасын басасыз</span></div></li>
+            <li><span class="num">3</span><div><b>Тест</b><span class="txt">Кітап бойынша қысқа тест тапсырасыз</span></div></li>
+          </ol>
+          <div class="alert alert-warn" id="reg-closed" hidden style="margin-bottom:14px"><i data-icon="info"></i><span>Тіркелу қазір жабық. Бұрын тіркелген болсаңыз, төмендегі батырма арқылы кіріңіз.</span></div>
+          <div class="stack">
+            <button type="button" class="btn btn-primary btn-xl" data-go="register"><i data-icon="userplus"></i><span>Тіркелу</span></button>
+            <button type="button" class="btn btn-secondary" data-go="login"><i data-icon="login"></i><span>Мен бұрын тіркелгенмін</span></button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Тіркелу -->
+      <section id="view-register" hidden>
+        <form id="reg-form" class="card form reveal" novalidate>
+          <button type="button" class="back-link" data-go="welcome"><i data-icon="arrowleft"></i><span>Артқа</span></button>
+          <div><div class="step-pill"><b>1/3</b><span>Тіркелу</span></div></div>
+          <h1>Тіркелу</h1>
+          <p class="lead">Төмендегі 4 жолды толтырыңыз.</p>
+
+          <div class="field" data-field="fullName">
+            <label for="f-name">1. Аты-жөніңіз</label>
+            <p class="hint">Тегі, аты, әкесінің аты</p>
+            <input class="input" id="f-name" type="text" autocomplete="name" autocapitalize="words" maxlength="100" placeholder="Серікұлы Нұрлан Асқарұлы">
+            <p class="error" role="alert"></p>
+          </div>
+
+          <div class="field" data-field="workplace">
+            <label for="f-wp">2. Жұмыс орныңыз</label>
+            <select class="input select" id="f-wp"><option value="">— Тізімнен таңдаңыз —</option></select>
+            <p class="error" role="alert"></p>
+          </div>
+          <div class="field" data-field="workplaceOther" hidden>
+            <label for="f-wp-other">Жұмыс орныңыздың атауы</label>
+            <input class="input" id="f-wp-other" type="text" maxlength="100">
+            <p class="error" role="alert"></p>
+          </div>
+
+          <div class="field" data-field="iin">
+            <label for="f-iin">3. ЖСН</label>
+            <p class="hint">Жеке куәлігіңіздегі 12 сан</p>
+            <div class="input-wrap">
+              <input class="input input-num" id="f-iin" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="12" placeholder="12 сан">
+              <span class="counter" id="iin-counter" aria-hidden="true">0/12</span>
+            </div>
+            <p class="error" role="alert"></p>
+          </div>
+
+          <div class="field" data-field="phone">
+            <label for="f-phone">4. Телефон нөміріңіз</label>
+            <input class="input input-num" id="f-phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="+7 (7__) ___-__-__">
+            <p class="error" role="alert"></p>
+          </div>
+
+          <div class="field" data-field="consent">
+            <label class="check">
+              <input type="checkbox" id="f-consent">
+              <span class="box"><i data-icon="check"></i></span>
+              <span>Деректерімді байқау мақсатында өңдеуге келісемін</span>
+            </label>
+            <p class="error" role="alert"></p>
+          </div>
+
+          <p class="form-error" id="reg-error" role="alert" hidden></p>
+          <button type="submit" class="btn btn-primary btn-xl"><i data-icon="check"></i><span>Тіркелу</span></button>
+        </form>
+      </section>
+
+      <!-- 3. ЖСН арқылы қайта кіру -->
+      <section id="view-login" hidden>
+        <form id="login-form" class="card form reveal" novalidate>
+          <button type="button" class="back-link" data-go="welcome"><i data-icon="arrowleft"></i><span>Артқа</span></button>
+          <h1>Қайта кіру</h1>
+          <p class="lead">Тіркелген кезде жазған ЖСН-ді енгізіңіз.</p>
+
+          <div class="field" data-field="loginIin">
+            <label for="l-iin">ЖСН</label>
+            <p class="hint">Жеке куәлігіңіздегі 12 сан</p>
+            <div class="input-wrap">
+              <input class="input input-num" id="l-iin" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="12" placeholder="12 сан">
+              <span class="counter" id="l-iin-counter" aria-hidden="true">0/12</span>
+            </div>
+            <p class="error" role="alert"></p>
+          </div>
+
+          <p class="form-error" id="login-error" role="alert" hidden></p>
+          <div class="stack">
+            <button type="submit" class="btn btn-primary btn-xl"><i data-icon="login"></i><span>Кіру</span></button>
+            <button type="button" class="btn btn-secondary" data-go="register"><i data-icon="userplus"></i><span>Мен әлі тіркелмегенмін</span></button>
+          </div>
+        </form>
+      </section>
+
+      <!-- 4. Тіркелген қатысушының басты беті (app.js толтырады) -->
+      <section id="view-home" hidden></section>
+
+      <noscript><div class="alert alert-err">Сайт жұмыс істеуі үшін браузерде JavaScript қосулы болуы керек.</div></noscript>
+    </main>
+
+    <aside class="extras" id="extras"></aside>
+  </div>
+
+  <nav class="bottom-nav" id="bottom-nav" aria-label="Төменгі мәзір"></nav>
+
+  <script src="js/config.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
