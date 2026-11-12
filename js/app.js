@@ -198,6 +198,27 @@
       '<div class="cover-line"></div>' + img + '</div>';
   }
 
+  /* Мұқабалар желпуіші: ортасында негізгі кітап, екі жағында қосымша мұқабалар.
+     linkable=true болса, мұқабаны басқанда кітап беті ашылады. */
+  var GHOSTS = [
+    { title: '', author: '', coverColor: '#C9A84C' },
+    { title: '', author: '', coverColor: '#3A68B4' }
+  ];
+  function fanHTML(books, linkable) {
+    var fan = (books || []).slice(0, 3);
+    var items;
+    if (!fan.length) items = [{ g: GHOSTS[0] }, { g: { title: '', author: '', coverColor: '#1B3A70' } }, { g: GHOSTS[1] }];
+    else if (fan.length === 1) items = [{ g: GHOSTS[0] }, { b: fan[0] }, { g: GHOSTS[1] }];
+    else if (fan.length === 2) items = [{ b: fan[1] }, { b: fan[0] }, { g: GHOSTS[0] }];
+    else items = [{ b: fan[1] }, { b: fan[0] }, { b: fan[2] }];
+    return '<div class="fan">' + items.map(function (it, i) {
+      var cls = 'fan-item fan-' + i;
+      if (it.g) return '<div class="' + cls + ' fan-ghost" aria-hidden="true">' + coverHTML(it.g) + '</div>';
+      if (!linkable) return '<div class="' + cls + '" aria-hidden="true">' + coverHTML(it.b) + '</div>';
+      return '<a class="' + cls + '" href="book.html?id=' + encodeURIComponent(it.b.bookId) + '" aria-label="' + esc(it.b.title) + ' кітабын ашу">' + coverHTML(it.b) + '</a>';
+    }).join('') + '</div>';
+  }
+
   function stepsHTML(u) {
     var s = [
       { l: 'Тіркелу', done: true },
@@ -273,7 +294,7 @@
 
   function renderExtras() {
     var el = $('#extras');
-    if (!el || !window.matchMedia('(min-width: 1100px)').matches) return;
+    if (!el) return;
     var u = User.get();
     var c = cfg();
     var html = '';
@@ -286,6 +307,12 @@
     if (c.helpText) {
       html += '<section class="card card-soft reveal"><h3>' + icon('info') + '<span>Көмек керек пе?</span></h3><p>' + esc(c.helpText) + '</p></section>';
     }
+    // Беттің ең төменгі жолы: логотиптер және жоба атауы
+    html += '<div class="site-copy"><span class="site-copy-logos">' +
+      '<span class="logo-kitap"><img src="img/logo.jpg" alt="Кітап оқитын ұлт" width="1200" height="849" loading="lazy"></span>' +
+      '<span class="logo-sep" aria-hidden="true"></span>' +
+      '<img class="logo-emg" src="img/emg.png" alt="ЕмбіМұнайГаз" width="1200" height="330" loading="lazy"></span>' +
+      '<span>«' + esc(c.title) + '» кітап оқу байқауы · ' + new Date().getFullYear() + '</span></div>';
     el.innerHTML = html;
     if (u) {
       Rating.get(120000).then(function (r) {
@@ -442,6 +469,8 @@
 
     var slot = $('#decree-slot');
     if (slot) { slot.innerHTML = decreeHTML(); Icons.hydrate(slot); }
+    var art = $('#hero-art');
+    if (art) art.innerHTML = fanHTML(cfg().books, false);
 
     var regForm = $('#reg-form'), loginForm = $('#login-form');
     fillWorkplaces();
@@ -540,7 +569,7 @@
     window.addEventListener('hashchange', function () { if (!User.get()) routeGuest(); });
     Config.onChange(function () {
       renderChrome();
-      if (User.get()) renderHome(); else { fillWorkplaces(); routeGuest(); }
+      if (User.get()) renderHome(); else { fillWorkplaces(); routeGuest(); if (art) art.innerHTML = fanHTML(cfg().books, false); }
     });
     API.Queue.onSync(function (su) { User.merge(su); });
   }
@@ -557,20 +586,9 @@
     }
 
     /* Жинақ көрінісі: мұқабалар желпуіш сияқты жайылып тұрады. Мұқабаны басқанда кітап беті ашылады. */
-    var GHOSTS = [
-      { title: '', author: '', coverColor: '#C9A84C' },
-      { title: '', author: '', coverColor: '#3A68B4' }
-    ];
     function renderCollection() {
       var u = User.get();
       var books = cfg().books || [];
-      var fan = books.slice(0, 3);
-      var ghosts = fan.length < 3 ? GHOSTS.slice(0, 3 - fan.length) : [];
-      var items = [];
-      // Ортасында негізгі кітап, екі жағында қосымша мұқабалар
-      if (fan.length === 1) items = [{ g: ghosts[0] }, { b: fan[0] }, { g: ghosts[1] }];
-      else if (fan.length === 2) items = [{ b: fan[1] }, { b: fan[0] }, { g: ghosts[0] }];
-      else items = [{ b: fan[1] }, { b: fan[0] }, { b: fan[2] }];
       var href = function (b) { return 'book.html?id=' + encodeURIComponent(b.bookId); };
       var status = u.readFinishedAt ? 'Оқып бітірдіңіз' : u.bookOpenedAt ? 'Оқып жатырсыз' : 'Әлі ашылмаған';
 
@@ -580,11 +598,7 @@
         (books.length ? '<section class="collection reveal">' +
           '<div class="collection-meta"><span>' + icon('star') + 'Байқау кітабы</span><span>' + icon('book') + books.length + ' кітап</span></div>' +
           '<h2>' + esc(cfg().title) + '</h2><p class="collection-sub">' + esc(status) + '</p>' +
-          '<div class="fan">' + items.map(function (it, i) {
-            var cls = 'fan-item fan-' + i;
-            if (it.g) return '<div class="' + cls + ' fan-ghost" aria-hidden="true">' + coverHTML(it.g) + '</div>';
-            return '<a class="' + cls + '" href="' + href(it.b) + '" aria-label="' + esc(it.b.title) + ' кітабын ашу">' + coverHTML(it.b) + '</a>';
-          }).join('') + '</div>' +
+          fanHTML(books, true) +
           (books.length === 1
             ? '<a class="btn btn-primary btn-xl" href="' + href(books[0]) + '">' + icon('book') + '<span>Кітапты ашу</span></a>'
             : '<ul class="collection-list">' + books.map(function (b) {
