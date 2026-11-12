@@ -261,13 +261,13 @@
     var out = '<svg class="chart-svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Күн бойынша тіркелу графигі">';
     [0, 0.5, 1].forEach(function (f) {
       var y = T + (H - T - B) * (1 - f);
-      out += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y + '" y2="' + y + '" stroke="#E5DACD" stroke-width="1"/>' +
+      out += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y + '" y2="' + y + '" stroke="#D9DEE8" stroke-width="1"/>' +
         '<text x="' + (L - 6) + '" y="' + (y + 4) + '" text-anchor="end">' + Math.round(max * f) + '</text>';
     });
     items.forEach(function (it, i) {
       var h = (H - T - B) * it.value / max;
       var x = L + step * i + (step - bw) / 2, y = H - B - h;
-      out += '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + Math.max(h, 0).toFixed(1) + '" rx="4" fill="#B84A00"><title>' + it.label + ': ' + it.value + '</title></rect>';
+      out += '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + Math.max(h, 0).toFixed(1) + '" rx="4" fill="#0B1E3E"><title>' + it.label + ': ' + it.value + '</title></rect>';
       if (items.length <= 16 && it.value) out += '<text class="val" x="' + (x + bw / 2).toFixed(1) + '" y="' + (y - 6).toFixed(1) + '" text-anchor="middle">' + it.value + '</text>';
       if (i % every === 0) out += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (H - 12) + '" text-anchor="middle">' + it.label + '</text>';
     });

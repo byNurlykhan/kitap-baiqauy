@@ -244,32 +244,36 @@
     document.body.classList.toggle('guest', !u);
     document.title = (PAGE_TITLES[page] || '') + ' · ' + c.title;
 
-    var brand = '<a class="brand" href="index.html"><span class="brand-mark">' + icon('book') + '</span><span>' + esc(c.title) + '</span></a>';
-    var side = $('#sidebar'), bottom = $('#bottom-nav'), top = $('#topbar');
+    // Логотиптер қатары: «Кітап оқитын ұлт» және «ЕмбіМұнайГаз»
+    var logos = '<a class="logos" href="index.html" aria-label="' + esc(c.title) + ' — басты бет">' +
+      '<span class="logo-kitap"><img src="img/logo.jpg" alt="Кітап оқитын ұлт" width="1200" height="849"></span>' +
+      '<span class="logo-sep" aria-hidden="true"></span>' +
+      '<img class="logo-emg" src="img/emg.png" alt="ЕмбіМұнайГаз" width="1200" height="330"></a>';
+    var bottom = $('#bottom-nav'), top = $('#topbar');
 
     function link(n) {
       return '<a href="' + n.href + '"' + (n.id === page ? ' class="active" aria-current="page"' : '') + '>' + icon(n.icon) + '<span>' + n.label + '</span></a>';
     }
-
-    if (side) {
-      var html = '<div class="side-inner">' + brand;
-      if (u) {
-        html += '<div class="profile-card"><div class="avatar">' + esc(initials(u)) + '</div><div><p class="muted small">Қош келдіңіз</p><p class="profile-name">' + esc(u.firstName) + '</p></div></div>';
-        html += '<nav class="side-nav" aria-label="Негізгі мәзір">' + NAV.concat([{ id: 'rating', href: 'rating.html', icon: 'trophy', label: 'Үздіктер' }]).map(link).join('') + '</nav>';
-        html += '<div class="side-foot side-nav"><button type="button" data-logout>' + icon('logout') + '<span>Шығу</span></button></div>';
-      } else {
-        html += '<div class="card card-soft"><h3>3 оңай қадам</h3><p>1. Тіркелу</p><p>2. Кітапты оқу</p><p>3. Тест тапсыру</p></div>';
-      }
-      side.innerHTML = html + '</div>';
+    function textLink(n) {
+      return '<a href="' + n.href + '"' + (n.id === page ? ' class="active" aria-current="page"' : '') + '>' + n.label + '</a>';
     }
+
     if (bottom) bottom.innerHTML = u ? NAV.map(link).join('') : '';
-    if (top) top.innerHTML = brand + (u ? '<div class="avatar" aria-hidden="true">' + esc(initials(u)) + '</div>' : '');
+    if (top) {
+      var html = '<div class="header-inner">' + logos;
+      if (u) {
+        html += '<nav class="top-nav" aria-label="Негізгі мәзір">' + NAV.concat([{ id: 'rating', href: 'rating.html', label: 'Үздіктер' }]).map(textLink).join('') + '</nav>' +
+          '<div class="header-user"><span class="header-name">' + esc(u.firstName) + '</span><div class="avatar" aria-hidden="true">' + esc(initials(u)) + '</div>' +
+          '<button type="button" class="header-logout" data-logout>' + icon('logout') + '<span>Шығу</span></button></div>';
+      }
+      top.innerHTML = html + '</div>';
+    }
     renderExtras();
   }
 
   function renderExtras() {
     var el = $('#extras');
-    if (!el || !window.matchMedia('(min-width: 1200px)').matches) return;
+    if (!el || !window.matchMedia('(min-width: 1100px)').matches) return;
     var u = User.get();
     var c = cfg();
     var html = '';
