@@ -20,6 +20,7 @@
 
   var bookId = new URLSearchParams(location.search).get('id') || '';
   var state = { book: null, rendition: null, meta: null, atEnd: false, toc: [] };
+  if (location.hostname === 'localhost') window.__kbReader = state; // тек жергілікті тексеру үшін
 
   /* ---------- Хабарламалар ---------- */
   function status(text, opts) {
@@ -233,6 +234,7 @@
       link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap';
       doc.head.appendChild(link);
       bindDrag(doc);
+      protect(doc);
       doc.addEventListener('keydown', onKey);
     });
 
@@ -258,11 +260,15 @@
     }
     rendition.on('rendered', onShown);
     rendition.on('relocated', function (loc) {
-      state.loc = loc;
       onShown();
-      LS.set(keyPos(), loc.start.cfi);
-      $('r-chapter').textContent = chapterTitle(loc.start.href);
-      updateProgress(loc);
+      // Оқиғадағы орын кейде ескі болады (артқа аударғанда) — нақты орынды беттің күйінен аламыз
+      var cur = null;
+      try { cur = rendition.currentLocation(); } catch (e) { cur = null; }
+      if (!cur || !cur.start || !cur.start.cfi) cur = loc;
+      state.loc = cur;
+      LS.set(keyPos(), cur.start.cfi);
+      $('r-chapter').textContent = chapterTitle(cur.start.href);
+      updateProgress(cur);
     });
 
     // Сақталған орыннан ашамыз. epub.js кейде уәдесін (promise) аяқтамай қалады,
@@ -344,6 +350,28 @@
     var r = state.rendition;
     try { return dir > 0 ? r.next() : r.prev(); } catch (e) { return null; }
   }
+  /* epub.js «relocated» оқиғасы кейде шықпай қалады (әсіресе артқа аударғанда, бөлшек пиксельде).
+     Сондықтан әр аударудан кейін оқыған орынды беттің нақты күйінен өзіміз есептеп сақтаймыз. */
+  function syncLocation() {
+    var r = state.rendition;
+    if (!r) return;
+    var loc;
+    try { loc = r.currentLocation(); } catch (e) { loc = null; }
+    if (!loc || !loc.start || !loc.start.cfi) return;
+    state.loc = loc;
+    LS.set(keyPos(), loc.start.cfi);
+    $('r-chapter').textContent = chapterTitle(loc.start.href);
+    updateProgress(loc);
+  }
+
+  // epub.js бетті айналдыруды бірден аяқтамайды — орынды бірнеше рет қайта оқимыз
+  var syncTimers = [];
+  function syncSoon() {
+    syncTimers.forEach(clearTimeout);
+    syncLocation();
+    syncTimers = [setTimeout(syncLocation, 350), setTimeout(syncLocation, 900)];
+  }
+
   function canGo(dir) {
     var loc = state.loc;
     if (!loc) return true;
@@ -359,9 +387,10 @@
     if (!r || turning) return;
     if (!canGo(1)) { turning = true; await bounce(1); turning = false; return; }
     turning = true;
-    if (reduceMotion) { await settle(call(1)); turning = false; return; }
+    if (reduceMotion) { await settle(call(1)); syncSoon(); turning = false; return; }
     await tween(from || 0, -90, 230, pageAngle);       // бет көтеріледі
     await settle(call(1));                               // мәтін келесі бетке ауысады
+    syncSoon();
     pageAngle(0);
     backAngle(-90);
     await tween(-90, -180, 260, backAngle);              // арқа жағы сол жаққа жатады
@@ -373,11 +402,12 @@
     var r = state.rendition;
     if (!r || turning || !canGo(-1)) return;
     turning = true;
-    if (reduceMotion) { await settle(call(-1)); turning = false; return; }
+    if (reduceMotion) { await settle(call(-1)); syncSoon(); turning = false; return; }
     await tween(from == null ? -180 : from, -90, 230, backAngle); // бет сол жақтан көтеріледі
     backAngle(-180);
     pageAngle(-90);
     await settle(call(-1));
+    syncSoon();
     await tween(-90, 0, 260, pageAngle);                 // алдыңғы бет орнына жатады
     pageAngle(0);
     turning = false;
@@ -446,42 +476,155 @@
   }
 
   /* Саусақпен (немесе тінтуірмен) тартып аудару. Оқиғалар кітап мәтінінің ішінен келеді. */
+  /* Телефонда сенсорлық оқиғалар (touch*) тікелей ұсталады: көлденең тартқанда браузердің өз
+     қимылы (айналдыру, артқа өту) preventDefault арқылы бөгеледі, сондықтан тарту үзілмейді.
+     Компьютерде тінтуір (pointer*) арқылы жұмыс істейді. Бір тартуды екі рет өңдемеу үшін
+     сенсорлық оқиға келген соң pointer оқиғалары еленбейді. */
   function bindDrag(doc) {
-    try { doc.documentElement.style.touchAction = 'pan-y pinch-zoom'; } catch (e) { /* елемейміз */ }
+    try {
+      doc.documentElement.style.touchAction = 'pan-y pinch-zoom';
+      doc.documentElement.style.webkitUserSelect = 'none';
+      doc.body.style.overscrollBehavior = 'none';
+    } catch (e) { /* елемейміз */ }
     var d = null;
+    var lastTouch = 0;
     function width() { return sheetEl().offsetWidth || window.innerWidth; }
 
-    doc.addEventListener('pointerdown', function (e) {
-      if (turning || (e.pointerType === 'mouse' && e.button !== 0)) return;
-      d = { x: e.clientX, y: e.clientY, dir: 0, a: 0, w: width() };
-    });
-    doc.addEventListener('pointermove', function (e) {
-      if (!d || turning) return;
-      var dx = e.clientX - d.x, dy = e.clientY - d.y;
-      if (!d.dir) {
-        if (Math.abs(dx) < 12 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
+    function start(x, y) {
+      if (turning) { d = null; return; }
+      d = { x: x, y: y, lx: x, dir: 0, a: 0, w: width() };
+    }
+    // true қайтарса — бұл көлденең тарту, браузердің өз қимылын тоқтату керек
+    function move(x, y) {
+      if (!d || turning) return false;
+      var dx = x - d.x, dy = y - d.y;
+      d.lx = x;
+      if (!d.dir && !d.blocked) {
+        if (Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy) * 1.2) return false;
         d.dir = dx < 0 ? 1 : -1;
-        if (!canGo(d.dir) || reduceMotion) { d.dir = 0; d.blocked = true; return; }
+        if (!canGo(d.dir) || reduceMotion) { d.blocked = d.dir; d.dir = 0; return true; }
       }
+      if (d.blocked) return true;
       if (d.dir > 0) { d.a = Math.max(-88, Math.min(0, dx / d.w * 150)); pageAngle(d.a); }
       else { d.a = -180 + Math.max(0, Math.min(88, dx / d.w * 150)); backAngle(d.a); }
-    });
-    function end(e, cancelled) {
+      return true;
+    }
+    function end(x) {
       if (!d) return;
       var cur = d; d = null;
+      var dx = (x != null ? x : cur.lx) - cur.x;
       if (cur.dir || cur.blocked) lastDragAt = Date.now();
-      if (cur.blocked) { var bx = e && e.clientX != null ? e.clientX - cur.x : 0; if (bx < -40) bounce(1); return; }
+      if (cur.blocked) {
+        if (reduceMotion && Math.abs(dx) > 50) turn(cur.blocked); // анимациясыз режимде жай ауыстырамыз
+        else if (cur.blocked > 0) bounce(1);
+        return;
+      }
       if (cur.dir > 0) {
-        if (!cancelled && cur.a < -28) goNext(cur.a);
+        // Жартысына жеткізсе немесе тез сілтесе (60px-тен көп) — бет аударылады
+        if (cur.a < -28 || dx < -60) goNext(cur.a);
         else { turning = true; tween(cur.a, 0, 200, pageAngle).then(function () { turning = false; }); }
       } else if (cur.dir < 0) {
-        if (!cancelled && cur.a > -152) goPrev(cur.a);
+        if (cur.a > -152 || dx > 60) goPrev(cur.a);
         else { turning = true; tween(cur.a, -180, 200, backAngle).then(function () { backAngle(-180); turning = false; }); }
       }
     }
-    doc.addEventListener('pointerup', function (e) { end(e, false); });
-    doc.addEventListener('pointercancel', function (e) { end(e, true); });
+
+    // --- Сенсорлы экран ---
+    doc.addEventListener('touchstart', function (e) {
+      lastTouch = Date.now();
+      if (e.touches.length !== 1) { d = null; return; } // екі саусақпен — үлкейту, тарту емес
+      start(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: true });
+    doc.addEventListener('touchmove', function (e) {
+      lastTouch = Date.now();
+      if (e.touches.length !== 1) return;
+      if (move(e.touches[0].clientX, e.touches[0].clientY) && e.cancelable) e.preventDefault();
+    }, { passive: false });
+    doc.addEventListener('touchend', function (e) {
+      lastTouch = Date.now();
+      var t = e.changedTouches && e.changedTouches[0];
+      end(t ? t.clientX : null);
+    }, { passive: true });
+    doc.addEventListener('touchcancel', function () {
+      lastTouch = Date.now();
+      end(null); // браузер үзсе де, жеткен жерге қарай шешеміз
+    }, { passive: true });
+
+    // --- Тінтуір (компьютер) ---
+    function fromTouch(e) { return e.pointerType === 'touch' || e.pointerType === 'pen' || Date.now() - lastTouch < 800; }
+    doc.addEventListener('pointerdown', function (e) {
+      if (fromTouch(e) || e.button !== 0) return;
+      start(e.clientX, e.clientY);
+    });
+    doc.addEventListener('pointermove', function (e) { if (!fromTouch(e)) move(e.clientX, e.clientY); });
+    doc.addEventListener('pointerup', function (e) { if (!fromTouch(e)) end(e.clientX); });
+    doc.addEventListener('pointercancel', function (e) { if (!fromTouch(e)) end(null); });
   }
+
+  /* ==========================================================
+     Кітапты көшіруден қорғау
+     Веб-сайт телефонның өз скриншотын толық бөгей алмайды. Сондықтан:
+     - әр бетте қатысушының аты-жөні жазылған ақшыл су таңба тұрады (таратылған сурет кімнен шыққаны көрінеді);
+     - мәтінді белгілеу, көшіру, ұзақ басып мәзір ашу, сүйреп алу, басып шығару және сақтау бөгеледі;
+     - басқа қосымшаға өткенде немесе скриншот пернесі (PrintScreen) басылғанда кітап бұлдырланады.
+     ========================================================== */
+  function setWatermark() {
+    var u = LS.get('kb_user') || {};
+    var d = new Date();
+    var p2 = function (n) { return (n < 10 ? '0' : '') + n; };
+    var text = (u.fullName || 'Қатысушы') + ' · ' + p2(d.getDate()) + '.' + p2(d.getMonth() + 1) + '.' + d.getFullYear();
+    var safe = esc(text);
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="170">' +
+      '<text x="150" y="95" text-anchor="middle" transform="rotate(-28 150 85)" ' +
+      'font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="rgba(11,30,62,0.11)">' + safe + '</text></svg>';
+    $('r-wm').style.backgroundImage = 'url("data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg) + '")';
+  }
+
+  var shieldTimer;
+  function shield(on, ms) {
+    clearTimeout(shieldTimer);
+    document.body.classList.toggle('shielded', !!on);
+    if (on && ms) shieldTimer = setTimeout(function () { document.body.classList.remove('shielded'); }, ms);
+  }
+
+  function blockEvent(e) { e.preventDefault(); return false; }
+  function guardKeys(e) {
+    var k = (e.key || '').toLowerCase();
+    if (k === 'printscreen') {
+      shield(true, 2000);
+      try { if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(''); } catch (err) { /* елемейміз */ }
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && (k === 'c' || k === 'x' || k === 'a' || k === 's' || k === 'p' || k === 'u')) {
+      e.preventDefault();
+    }
+  }
+
+  function protect(doc) {
+    try {
+      var st = doc.createElement('style');
+      st.textContent = 'html,body,*{-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important}' +
+        'img,svg,image{pointer-events:none!important;-webkit-user-drag:none!important}';
+      doc.head.appendChild(st);
+    } catch (e) { /* елемейміз */ }
+    ['copy', 'cut', 'contextmenu', 'selectstart', 'dragstart'].forEach(function (t) { doc.addEventListener(t, blockEvent); });
+    doc.addEventListener('keydown', guardKeys);
+    doc.addEventListener('keyup', guardKeys);
+  }
+
+  // Негізгі беттің өзі де қорғалады
+  ['copy', 'cut', 'contextmenu', 'selectstart', 'dragstart'].forEach(function (t) { document.addEventListener(t, blockEvent); });
+  document.addEventListener('keydown', guardKeys);
+  document.addEventListener('keyup', guardKeys);
+  // Басқа қосымшаға өткенде (телефонның «соңғы қосымшалар» экранында) кітап көрінбейді
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) shield(true); else setTimeout(function () { shield(false); }, 250);
+  });
+  window.addEventListener('pagehide', function () { shield(true); });
+  window.addEventListener('pageshow', function () { shield(false); }); // «Артқа» арқылы қайта ашылғанда
+  window.addEventListener('beforeprint', function () { shield(true); });
+  window.addEventListener('afterprint', function () { shield(false); });
+  setWatermark();
 
   function onKey(e) {
     if (e.key === 'ArrowRight' || e.key === 'PageDown') turn(1);
