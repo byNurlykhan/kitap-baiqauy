@@ -227,17 +227,13 @@
       link.rel = 'stylesheet';
       link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap';
       doc.head.appendChild(link);
-      var sx = 0, sy = 0;
-      doc.addEventListener('touchstart', function (e) { sx = e.changedTouches[0].clientX; sy = e.changedTouches[0].clientY; }, { passive: true });
-      doc.addEventListener('touchend', function (e) {
-        var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
-        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) turn(dx < 0 ? 1 : -1);
-      }, { passive: true });
+      bindDrag(doc);
       doc.addEventListener('keydown', onKey);
     });
 
     // Беттің сол жағын басса — артқа, оң жағын басса — алға
     rendition.on('click', function (e) {
+      if (Date.now() - lastDragAt < 400) return; // саусақпен аударғаннан кейінгі басуды елемейміз
       var sel = e.view && e.view.getSelection && e.view.getSelection();
       if (sel && String(sel).length) return;
       var w = e.view ? e.view.innerWidth : window.innerWidth;
@@ -255,6 +251,7 @@
     }
     rendition.on('rendered', onShown);
     rendition.on('relocated', function (loc) {
+      state.loc = loc;
       onShown();
       LS.set(keyPos(), loc.start.cfi);
       $('r-chapter').textContent = chapterTitle(loc.start.href);
@@ -290,17 +287,133 @@
     }).catch(function () {});
   }
 
-  /* Парақтау: алдыңғы ауысу аяқталмай тұрып келесі басу елеусіз қалады (epub.js қатесін болдырмау үшін) */
+  /* ==========================================================
+     Парақ аудару (кәдімгі кітап сияқты)
+     Алға: бет оң жақ шетінен көтеріліп, сол жақтағы түптемеге қарай аударылады.
+     Артқа: алдыңғы бет сол жақтан қайта жабылып келеді.
+     Саусақпен тартқанда бет саусақтың соңынан ереді; жартысына жетпей жіберсе — орнына оралады.
+     ========================================================== */
   var turning = false;
-  function turn(dir) {
+  var lastDragAt = 0;
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function sheetEl() { return $('r-page'); }
+  function backEl() { return $('r-back-sheet'); }
+
+  // Бет: 0° — жатыр, -90° — тік тұр (көрінбейді). Көлеңке бұрышқа қарай қоюланады.
+  function pageAngle(a) {
+    var s = sheetEl();
+    s.style.transform = a ? 'rotateY(' + a + 'deg)' : '';
+    s.querySelector('.page-shade').style.opacity = String(Math.min(0.6, Math.abs(a) / 90 * 0.6));
+  }
+  // Беттің арқа жағы: -90° — тік, -180° — сол жаққа жатып, жасырынады.
+  function backAngle(a) {
+    var b = backEl();
+    if (a <= -179.5) { b.style.display = 'none'; return; }
+    b.style.display = 'block';
+    b.style.transform = 'rotateY(' + a + 'deg)';
+    b.style.setProperty('--shade', String(Math.max(0, (a + 180) / 90) * 0.35));
+  }
+
+  function tween(from, to, ms, fn) {
+    return new Promise(function (res) {
+      var t0 = 0;
+      function step(t) {
+        if (!t0) t0 = t;
+        var k = Math.min(1, (t - t0) / ms);
+        var e = 1 - Math.pow(1 - k, 3);
+        fn(from + (to - from) * e);
+        if (k < 1) requestAnimationFrame(step); else res();
+      }
+      requestAnimationFrame(step);
+    });
+  }
+
+  // epub.js кейде уәдесін аяқтамайды — сондықтан ең көбі 1.5 секунд күтеміз
+  function settle(p) {
+    return Promise.race([Promise.resolve(p).catch(function () {}), new Promise(function (r) { setTimeout(r, 1500); })]);
+  }
+  function call(dir) {
+    var r = state.rendition;
+    try { return dir > 0 ? r.next() : r.prev(); } catch (e) { return null; }
+  }
+  function canGo(dir) {
+    var loc = state.loc;
+    if (!loc) return true;
+    return dir > 0 ? !loc.atEnd : !loc.atStart;
+  }
+
+  async function bounce(dir) {
+    if (dir > 0) { await tween(0, -14, 140, pageAngle); await tween(-14, 0, 200, pageAngle); }
+  }
+
+  async function goNext(from) {
     var r = state.rendition;
     if (!r || turning) return;
+    if (!canGo(1)) { turning = true; await bounce(1); turning = false; return; }
     turning = true;
-    var p;
-    try { p = dir > 0 ? r.next() : r.prev(); } catch (e) { p = null; }
-    Promise.resolve(p).catch(function () {}).then(function () {
-      setTimeout(function () { turning = false; }, 120);
+    if (reduceMotion) { await settle(call(1)); turning = false; return; }
+    await tween(from || 0, -90, 230, pageAngle);       // бет көтеріледі
+    await settle(call(1));                               // мәтін келесі бетке ауысады
+    pageAngle(0);
+    backAngle(-90);
+    await tween(-90, -180, 260, backAngle);              // арқа жағы сол жаққа жатады
+    backAngle(-180);
+    turning = false;
+  }
+
+  async function goPrev(from) {
+    var r = state.rendition;
+    if (!r || turning || !canGo(-1)) return;
+    turning = true;
+    if (reduceMotion) { await settle(call(-1)); turning = false; return; }
+    await tween(from == null ? -180 : from, -90, 230, backAngle); // бет сол жақтан көтеріледі
+    backAngle(-180);
+    pageAngle(-90);
+    await settle(call(-1));
+    await tween(-90, 0, 260, pageAngle);                 // алдыңғы бет орнына жатады
+    pageAngle(0);
+    turning = false;
+  }
+
+  function turn(dir) { if (dir > 0) goNext(); else goPrev(); }
+
+  /* Саусақпен (немесе тінтуірмен) тартып аудару. Оқиғалар кітап мәтінінің ішінен келеді. */
+  function bindDrag(doc) {
+    try { doc.documentElement.style.touchAction = 'pan-y pinch-zoom'; } catch (e) { /* елемейміз */ }
+    var d = null;
+    function width() { return sheetEl().offsetWidth || window.innerWidth; }
+
+    doc.addEventListener('pointerdown', function (e) {
+      if (turning || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      d = { x: e.clientX, y: e.clientY, dir: 0, a: 0, w: width() };
     });
+    doc.addEventListener('pointermove', function (e) {
+      if (!d || turning) return;
+      var dx = e.clientX - d.x, dy = e.clientY - d.y;
+      if (!d.dir) {
+        if (Math.abs(dx) < 12 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
+        d.dir = dx < 0 ? 1 : -1;
+        if (!canGo(d.dir) || reduceMotion) { d.dir = 0; d.blocked = true; return; }
+      }
+      if (d.dir > 0) { d.a = Math.max(-88, Math.min(0, dx / d.w * 150)); pageAngle(d.a); }
+      else { d.a = -180 + Math.max(0, Math.min(88, dx / d.w * 150)); backAngle(d.a); }
+    });
+    function end(e, cancelled) {
+      if (!d) return;
+      var cur = d; d = null;
+      if (cur.dir || cur.blocked) lastDragAt = Date.now();
+      if (cur.blocked) { var bx = e && e.clientX != null ? e.clientX - cur.x : 0; if (bx < -40) bounce(1); return; }
+      if (cur.dir > 0) {
+        if (!cancelled && cur.a < -28) goNext(cur.a);
+        else { turning = true; tween(cur.a, 0, 200, pageAngle).then(function () { turning = false; }); }
+      } else if (cur.dir < 0) {
+        if (!cancelled && cur.a > -152) goPrev(cur.a);
+        else { turning = true; tween(cur.a, -180, 200, backAngle).then(function () { backAngle(-180); turning = false; }); }
+      }
+    }
+    doc.addEventListener('pointerup', function (e) { end(e, false); });
+    doc.addEventListener('pointercancel', function (e) { end(e, true); });
   }
 
   function onKey(e) {
