@@ -538,13 +538,53 @@
   function pageBook() {
     var root = $('#page');
 
+    function bookId() { return new URLSearchParams(location.search).get('id'); }
     function book() {
-      var id = new URLSearchParams(location.search).get('id');
+      var id = bookId();
       var list = cfg().books || [];
       return list.filter(function (b) { return b.bookId === id; })[0] || currentBook(User.get());
     }
 
+    /* Жинақ көрінісі: мұқабалар желпуіш сияқты жайылып тұрады. Мұқабаны басқанда кітап беті ашылады. */
+    var GHOSTS = [
+      { title: '', author: '', coverColor: '#C9A84C' },
+      { title: '', author: '', coverColor: '#3A68B4' }
+    ];
+    function renderCollection() {
+      var u = User.get();
+      var books = cfg().books || [];
+      var fan = books.slice(0, 3);
+      var ghosts = fan.length < 3 ? GHOSTS.slice(0, 3 - fan.length) : [];
+      var items = [];
+      // Ортасында негізгі кітап, екі жағында қосымша мұқабалар
+      if (fan.length === 1) items = [{ g: ghosts[0] }, { b: fan[0] }, { g: ghosts[1] }];
+      else if (fan.length === 2) items = [{ b: fan[1] }, { b: fan[0] }, { g: ghosts[0] }];
+      else items = [{ b: fan[1] }, { b: fan[0] }, { b: fan[2] }];
+      var href = function (b) { return 'book.html?id=' + encodeURIComponent(b.bookId); };
+      var status = u.readFinishedAt ? 'Оқып бітірдіңіз' : u.bookOpenedAt ? 'Оқып жатырсыз' : 'Әлі ашылмаған';
+
+      root.innerHTML =
+        '<div class="step-pill reveal"><b>2/3</b><span>Кітап</span></div>' +
+        '<header class="page-head reveal"><h1>Кітаптар</h1><p class="lead">Мұқабаны басып, кітапты ашыңыз.</p></header>' +
+        (books.length ? '<section class="collection reveal">' +
+          '<div class="collection-meta"><span>' + icon('star') + 'Байқау кітабы</span><span>' + icon('book') + books.length + ' кітап</span></div>' +
+          '<h2>' + esc(cfg().title) + '</h2><p class="collection-sub">' + esc(status) + '</p>' +
+          '<div class="fan">' + items.map(function (it, i) {
+            var cls = 'fan-item fan-' + i;
+            if (it.g) return '<div class="' + cls + ' fan-ghost" aria-hidden="true">' + coverHTML(it.g) + '</div>';
+            return '<a class="' + cls + '" href="' + href(it.b) + '" aria-label="' + esc(it.b.title) + ' кітабын ашу">' + coverHTML(it.b) + '</a>';
+          }).join('') + '</div>' +
+          (books.length === 1
+            ? '<a class="btn btn-primary btn-xl" href="' + href(books[0]) + '">' + icon('book') + '<span>Кітапты ашу</span></a>'
+            : '<ul class="collection-list">' + books.map(function (b) {
+                return '<li><a href="' + href(b) + '"><span class="cl-cover">' + coverHTML(b) + '</span><span><b>' + esc(b.title) + '</b><span>' + esc(b.author) + '</span></span>' + icon('arrowright') + '</a></li>';
+              }).join('') + '</ul>') +
+          '</section>'
+        : '<section class="card state"><div class="state-icon tone-info">' + icon('book') + '</div><h2>Кітап әлі қосылмаған</h2><p>Сәл кейінірек кіріңіз.</p></section>');
+    }
+
     function render() {
+      if (!bookId()) { renderCollection(); return; }
       var u = User.get();
       var b = book();
       var hasUrl = /^https?:\/\//i.test(b.url || '');
@@ -563,7 +603,8 @@
           '<button type="button" class="btn btn-secondary" id="finish-btn">' + icon('check') + '<span>Оқып бітірдім</span></button>';
       }
       root.innerHTML =
-        '<div class="step-pill reveal"><b>2/3</b><span>Кітап</span></div>' +
+        '<a class="back-link reveal" href="book.html">' + icon('arrowleft') + '<span>Барлық кітаптар</span></a>' +
+        '<div><div class="step-pill reveal"><b>2/3</b><span>Кітап</span></div></div>' +
         '<section class="card book-detail reveal">' +
         '<div class="book-cover-wrap">' + coverHTML(b) + '</div>' +
         '<div><h1>' + esc(b.title) + '</h1><p class="book-author">' + esc(b.author) + '</p>' +
