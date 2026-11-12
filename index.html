@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#FAF6F0">
+  <meta name="theme-color" content="#FFFFFF">
   <meta name="description" content="Кітап оқу байқауы: тіркеліңіз, кітапты оқыңыз, тест тапсырыңыз.">
   <title>Кітап оқу байқауы</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23B84A00'/%3E%3Cpath d='M9 22V10a2 2 0 0 1 2-2h12v12H11a2 2 0 0 0 0 4h12' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%230B1E3E'/%3E%3Cpath d='M9 22V10a2 2 0 0 1 2-2h12v12H11a2 2 0 0 0 0 4h12' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
   <!-- Inter: Google Fonts css2 қазақ әріптеріне керек cyrillic және cyrillic-ext бөліктерін өзі қосады -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,29 +14,31 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body data-page="home" class="guest">
+  <header class="site-header" id="topbar"></header>
+
   <div class="app">
-    <aside class="sidebar" id="sidebar"></aside>
 
     <main class="main">
-      <div class="topbar" id="topbar"></div>
 
       <!-- 1. Қонақ: бастапқы бет -->
       <section id="view-welcome" hidden>
         <div class="welcome">
-          <div class="logo-card reveal"><img src="img/logo.jpg" alt="Кітап оқитын ұлт" width="1200" height="849" decoding="async"></div>
-          <p class="eyebrow reveal" data-bind="title">Кітап оқу байқауы</p>
-          <h1 class="reveal">Кітап оқыңыз. Біліміңізді тексеріңіз.</h1>
-          <p class="lead reveal">Қатысу оңай. Бар болғаны 3 қадам.</p>
+          <div class="hero reveal">
+            <p class="hero-eyebrow" data-bind="title">Кітап оқу байқауы</p>
+            <h1>Кітап оқыңыз.<span>Біліміңізді тексеріңіз.</span></h1>
+            <p class="hero-lead">Қатысу оңай. Бар болғаны 3 қадам.</p>
+            <div class="alert alert-warn" id="reg-closed" hidden><i data-icon="info"></i><span>Тіркелу қазір жабық. Бұрын тіркелген болсаңыз, төмендегі батырма арқылы кіріңіз.</span></div>
+            <div class="hero-actions">
+              <button type="button" class="btn btn-gold btn-xl" data-go="register"><i data-icon="userplus"></i><span>Тіркелу</span></button>
+              <button type="button" class="btn btn-outline-light btn-xl" data-go="login"><i data-icon="login"></i><span>Мен бұрын тіркелгенмін</span></button>
+            </div>
+          </div>
+          <h2 class="section-title reveal">Қалай қатысамын?</h2>
           <ol class="howto reveal">
             <li><span class="num">1</span><div><b>Тіркелу</b><span class="txt">Атыңызды, ЖСН және телефон нөміріңізді жазасыз</span></div></li>
             <li><span class="num">2</span><div><b>Кітап</b><span class="txt">Кітапты оқып, «Оқып бітірдім» батырмасын басасыз</span></div></li>
             <li><span class="num">3</span><div><b>Тест</b><span class="txt">Кітап бойынша қысқа тест тапсырасыз</span></div></li>
           </ol>
-          <div class="alert alert-warn" id="reg-closed" hidden style="margin-bottom:14px"><i data-icon="info"></i><span>Тіркелу қазір жабық. Бұрын тіркелген болсаңыз, төмендегі батырма арқылы кіріңіз.</span></div>
-          <div class="stack">
-            <button type="button" class="btn btn-primary btn-xl" data-go="register"><i data-icon="userplus"></i><span>Тіркелу</span></button>
-            <button type="button" class="btn btn-secondary" data-go="login"><i data-icon="login"></i><span>Мен бұрын тіркелгенмін</span></button>
-          </div>
         </div>
       </section>
 
