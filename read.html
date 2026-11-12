@@ -10,6 +10,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="img/icon-180.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Кітап оқу">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
 </head>
 <body data-page="read" class="reader-page">
   <!-- Жоғарғы жолақ: артқа, кітап атауы, әріп өлшемі -->
@@ -19,8 +25,11 @@
     <div class="reader-font" role="group" aria-label="Әріп өлшемі">
       <button type="button" class="reader-icon-btn" id="r-smaller" aria-label="Әріпті кішірейту">A−</button>
       <button type="button" class="reader-icon-btn" id="r-bigger" aria-label="Әріпті үлкейту">A+</button>
+      <button type="button" class="reader-icon-btn" id="r-full" aria-label="Толық экранда оқу" hidden><i data-icon="maximize"></i></button>
     </div>
   </header>
+  <!-- Таза режимде көрінетін жіңішке оқу жолағы -->
+  <div class="reader-mini-progress" aria-hidden="true"><span id="r-mini"></span></div>
 
   <main class="reader-main">
     <!-- Кітап: бет (мәтін) және аударылып жатқан беттің арқа жағы -->
