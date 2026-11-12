@@ -91,9 +91,9 @@
   }
 
   function get(action, data, opts) {
-    opts = opts || {};
-    opts.method = 'GET';
-    return call(action, data, opts);
+    var o = { method: 'GET' };
+    Object.keys(opts || {}).forEach(function (k) { if (k !== 'method') o[k] = opts[k]; });
+    return call(action, data, o);
   }
 
   /* Қатеге арналған қарапайым мәтін */
