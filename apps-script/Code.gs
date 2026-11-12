@@ -86,7 +86,7 @@ function setup() {
     b.getRange(2, 1, 1, B_HEAD.length).setValues([[
       'b1', 'Қара сөздер', 'Абай Құнанбайұлы',
       'СЫНАҚ КІТАБЫ. Ұлы ақынның өмір, еңбек, білім және адамгершілік туралы қысқа ой-толғаулары.\nӘр сөзді бөлек оқуға болады.',
-      'https://example.com/kitap.pdf', '', '#7A3A16', true, 1
+      'https://example.com/kitap.pdf', '', '#1B3A70', true, 1
     ]]);
   }
 
@@ -121,7 +121,7 @@ function ensureSheet_(ss, name, head, widths) {
   let sh = ss.getSheetByName(name);
   if (!sh) sh = ss.insertSheet(name);
   if (sh.getLastRow() === 0) sh.getRange(1, 1, 1, head.length).setValues([head]);
-  sh.getRange(1, 1, 1, head.length).setFontWeight('bold').setBackground('#2B2420').setFontColor('#FFFFFF').setWrap(true).setVerticalAlignment('middle');
+  sh.getRange(1, 1, 1, head.length).setFontWeight('bold').setBackground('#0B1E3E').setFontColor('#FFFFFF').setWrap(true).setVerticalAlignment('middle');
   sh.setFrozenRows(1);
   (widths || []).forEach(function (w, i) { sh.setColumnWidth(i + 1, w); });
   return sh;
@@ -746,8 +746,8 @@ function apiAdminSaveBooks_(req) {
 /* ============================ EXCEL ЕСЕБІ ============================ */
 
 const RC = {
-  accent: '#B84A00', accentSoft: '#FFF1E6', accentMid: '#F2A65A', ink: '#1F1A17', muted: '#6B625A',
-  line: '#E6DCD0', head: '#2B2420', zebra: '#FAF6F1', white: '#FFFFFF'
+  accent: '#0B1E3E', accentSoft: '#EEF1F7', accentMid: '#C9A84C', ink: '#0B1E3E', muted: '#4A5670',
+  line: '#D9DEE8', head: '#0B1E3E', zebra: '#F6F8FB', white: '#FFFFFF'
 };
 const RFONT = 'Inter';
 const RDATE = 'dd.mm.yyyy hh:mm';
