@@ -28,19 +28,14 @@
       <button type="button" class="reader-icon-btn" id="r-full" aria-label="Толық экранда оқу" hidden><i data-icon="maximize"></i></button>
     </div>
   </header>
-  <!-- Таза режимде көрінетін жіңішке оқу жолағы -->
-  <div class="reader-mini-progress" aria-hidden="true"><span id="r-mini"></span></div>
+  <span id="r-mini" hidden></span>
 
   <main class="reader-main">
-    <!-- Кітап: бет (мәтін) және аударылып жатқан беттің арқа жағы -->
+    <!-- Кітап беті -->
     <div class="reader-book">
       <div id="r-page" class="reader-sheet">
-        <div id="r-viewer" class="reader-viewer" aria-label="Кітап мәтіні. Бетті аудару үшін саусақпен солға немесе оңға тартыңыз."></div>
-        <div class="page-shade" aria-hidden="true"></div>
-        <!-- Әр беттегі ақшыл су таңба: қатысушының аты-жөні және күні (скриншот таратылса, кімдікі екені көрінеді) -->
-        <div class="watermark" id="r-wm" aria-hidden="true"></div>
+        <div id="r-viewer" class="reader-viewer" aria-label="Кітап мәтіні. Бетті «Алға» және «Артқа» батырмаларымен ауыстырыңыз."></div>
       </div>
-      <div id="r-back-sheet" class="page-back" aria-hidden="true"></div>
     </div>
     <!-- Бет жасырылғанда (басқа қосымшаға өткенде, скриншот пернесі басылғанда) кітаптың орнына шығады -->
     <div class="privacy-shield" id="r-shield" aria-hidden="true"><i data-icon="lock"></i><p>Кітап жасырылды</p></div>
