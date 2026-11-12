@@ -847,3 +847,32 @@ a.fan-item:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; b
 .collection-list span span { color: var(--muted); font-size: .9rem; }
 .cl-cover .cover { padding: 0; }
 .cl-cover .cover > * { display: none; }
+
+/* ---------- «Жоба туралы» блогы (Жарлық) ---------- */
+.decree {
+  position: relative; overflow: hidden;
+  display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 16px; align-items: start;
+  margin-top: 22px; padding: 22px 20px 22px 22px;
+  background: #fff; border: 1px solid var(--line); border-left: 5px solid var(--gold);
+  border-radius: var(--r-lg); box-shadow: var(--sh-1);
+}
+.decree::after {
+  content: "\201C"; position: absolute; right: 14px; top: -18px;
+  font-family: Georgia, serif; font-size: 140px; line-height: 1; color: rgba(201, 168, 76, .16); pointer-events: none;
+}
+.decree-mark {
+  width: 52px; height: 52px; border-radius: 12px; display: grid; place-items: center;
+  background: var(--accent); color: var(--gold);
+}
+.decree-mark .ic { width: 28px; height: 28px; }
+.decree-eyebrow { color: var(--gold-ink); text-transform: uppercase; letter-spacing: .08em; font-size: .8rem; font-weight: 700; margin-bottom: 6px; }
+.decree-text { position: relative; z-index: 1; color: var(--ink-2); line-height: 1.6; }
+.decree-text b { color: var(--ink); font-weight: 700; }
+@media (max-width: 420px) {
+  .decree { grid-template-columns: 1fr; gap: 12px; padding: 20px 18px; }
+}
+@media (min-width: 700px) {
+  .decree { padding: 26px 30px; gap: 22px; grid-template-columns: 60px minmax(0, 1fr); }
+  .decree-mark { width: 60px; height: 60px; }
+  .decree-text { font-size: 1.08rem; }
+}
