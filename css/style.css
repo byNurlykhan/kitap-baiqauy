@@ -1134,3 +1134,53 @@ body:not(.admin) .score-big { font-size: 3.4rem; }
 body:not(.admin) .reader-nav .btn { min-height: 48px; }
 body:not(.admin) .collection-list a { min-height: 60px; }
 @media (min-width: 760px) { body:not(.admin) .hero .btn { white-space: nowrap; } }
+
+/* ---------- «Кітап оқитын мұнайшы» марафон ережесі (ашылып-жиналатын) ---------- */
+.rules { margin-top: 16px; background: #fff; border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--sh-1); overflow: hidden; }
+.rules summary { list-style: none; cursor: pointer; }
+.rules summary::-webkit-details-marker { display: none; }
+.rules-head { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 14px; align-items: start; padding: 18px; }
+.rules-head:focus-visible { outline: 3px solid var(--ink); outline-offset: -3px; border-radius: var(--r-lg); }
+.rules-mark { width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; background: var(--accent); color: var(--gold); }
+.rules-mark .ic { width: 24px; height: 24px; }
+.rules-titles { display: grid; gap: 4px; min-width: 0; }
+.rules-eyebrow { color: var(--gold-ink); text-transform: uppercase; letter-spacing: .08em; font-size: .78rem; font-weight: 700; }
+.rules-title { font-size: 1.2rem; line-height: 1.25; color: var(--ink); }
+.rules-sub { color: var(--ink-2); font-size: .92rem; line-height: 1.45; }
+.rules-toggle {
+  grid-column: 1 / -1; justify-self: start; display: inline-flex; align-items: center; gap: 8px;
+  min-height: 40px; padding: 8px 16px; border-radius: 10px; border: 1.5px solid var(--accent);
+  color: var(--accent); font-weight: 700; font-size: .95rem; background: #fff;
+}
+.rules-head:hover .rules-toggle { background: var(--accent-soft); }
+.rules-toggle .ic { width: 18px; height: 18px; transition: transform .2s ease; }
+.rules-main[open] .rules-toggle .ic { transform: rotate(180deg); }
+.rules-main .when-open, .rules-main[open] .when-closed { display: none; }
+.rules-main[open] .when-open { display: inline; }
+.rules-content { border-top: 1px solid var(--line); padding: 8px 12px 14px; display: grid; gap: 8px; background: #FAFBFD; }
+
+.rules-sec { background: #fff; border: 1px solid var(--line); border-radius: 12px; }
+.rules-sec > summary { display: grid; grid-template-columns: 30px minmax(0, 1fr) 20px; gap: 10px; align-items: center; padding: 12px 14px; font-weight: 700; color: var(--ink); line-height: 1.3; }
+.rules-sec > summary:focus-visible { outline: 3px solid var(--ink); outline-offset: -2px; border-radius: 12px; }
+.rules-sec > summary .ic { width: 18px; height: 18px; color: var(--muted); transition: transform .2s ease; }
+.rules-sec[open] > summary .ic { transform: rotate(180deg); }
+.rules-sec[open] > summary { border-bottom: 1px solid var(--line); }
+.rules-num { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font-size: .9rem; font-weight: 800; }
+.rules-body { padding: 12px 16px 16px; display: grid; gap: 10px; color: var(--ink-2); font-size: .95rem; line-height: 1.6; }
+.rules-body p, .rules-body ul { margin: 0; }
+.rules-body h4 { margin: 6px 0 0; font-size: 1rem; color: var(--ink); }
+.rules-pt { color: var(--accent); font-weight: 700; }
+.rules-body ul { padding-left: 20px; display: grid; gap: 4px; }
+.rules-body li::marker { color: var(--gold-ink); }
+.rules-nom { font-weight: 700; color: var(--ink); margin-top: 4px !important; }
+@media (min-width: 760px) {
+  .rules-head { grid-template-columns: 56px minmax(0, 1fr) auto; align-items: center; padding: 22px 26px; gap: 18px; }
+  .rules-mark { width: 56px; height: 56px; }
+  .rules-toggle { grid-column: auto; justify-self: end; }
+  .rules-content { padding: 12px 20px 20px; }
+  .rules-title { font-size: 1.3rem; }
+}
+@media (max-width: 759px) {
+  .rules-head { grid-template-columns: minmax(0, 1fr); padding: 16px; gap: 12px; }
+  .rules-mark { display: none; }
+}
