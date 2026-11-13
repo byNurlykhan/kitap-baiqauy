@@ -25,7 +25,61 @@
       "description": "Батыр жазушының балалық шағы, ата-анасы мен туған ауылы туралы өмірбаяндық роман.\nОтбасы, тәрбие және ұлттық салт-дәстүр туралы ой салатын шығарма.",
       "url": "books/ushqan-uya.epub",
       "coverUrl": "img/covers/ushqan-uya.jpg",
-      "coverColor": "#8E1B24"
+      "coverColor": "#4A3A2A"
+    },
+    {
+      "bookId": "ushqan-uya-2",
+      "title": "Ұшқан ұя",
+      "author": "Бауыржан Момышұлы",
+      "description": "Батыр жазушының балалық шағы, ата-анасы мен туған ауылы туралы өмірбаяндық роман.\nОтбасы, тәрбие және ұлттық салт-дәстүр туралы ой салатын шығарма.",
+      "url": "books/ushqan-uya.epub",
+      "coverUrl": "img/covers/ushqan-uya-2.jpg",
+      "coverColor": "#8A6A3A"
+    },
+    {
+      "bookId": "ushqan-uya-3",
+      "title": "Ұшқан ұя",
+      "author": "Бауыржан Момышұлы",
+      "description": "Батыр жазушының балалық шағы, ата-анасы мен туған ауылы туралы өмірбаяндық роман.\nОтбасы, тәрбие және ұлттық салт-дәстүр туралы ой салатын шығарма.",
+      "url": "books/ushqan-uya.epub",
+      "coverUrl": "img/covers/ushqan-uya-3.jpg",
+      "coverColor": "#6E7A55"
+    },
+    {
+      "bookId": "ushqan-uya-4",
+      "title": "Ұшқан ұя",
+      "author": "Бауыржан Момышұлы",
+      "description": "Батыр жазушының балалық шағы, ата-анасы мен туған ауылы туралы өмірбаяндық роман.\nОтбасы, тәрбие және ұлттық салт-дәстүр туралы ой салатын шығарма.",
+      "url": "books/ushqan-uya.epub",
+      "coverUrl": "img/covers/ushqan-uya-4.jpg",
+      "coverColor": "#2E6B2E"
+    },
+    {
+      "bookId": "ushqan-uya-5",
+      "title": "Ұшқан ұя",
+      "author": "Бауыржан Момышұлы",
+      "description": "Батыр жазушының балалық шағы, ата-анасы мен туған ауылы туралы өмірбаяндық роман.\nОтбасы, тәрбие және ұлттық салт-дәстүр туралы ой салатын шығарма.",
+      "url": "books/ushqan-uya.epub",
+      "coverUrl": "img/covers/ushqan-uya-5.jpg",
+      "coverColor": "#E8E6E0"
+    },
+    {
+      "bookId": "ushqan-uya-6",
+      "title": "Ұшқан ұя",
+      "author": "Бауыржан Момышұлы",
+      "description": "Батыр жазушының балалық шағы, ата-анасы мен туған ауылы туралы өмірбаяндық роман.\nОтбасы, тәрбие және ұлттық салт-дәстүр туралы ой салатын шығарма.",
+      "url": "books/ushqan-uya.epub",
+      "coverUrl": "img/covers/ushqan-uya-6.jpg",
+      "coverColor": "#2B2B2B"
+    },
+    {
+      "bookId": "ushqan-uya-7",
+      "title": "Ұшқан ұя",
+      "author": "Бауыржан Момышұлы",
+      "description": "Батыр жазушының балалық шағы, ата-анасы мен туған ауылы туралы өмірбаяндық роман.\nОтбасы, тәрбие және ұлттық салт-дәстүр туралы ой салатын шығарма.",
+      "url": "books/ushqan-uya.epub",
+      "coverUrl": "img/covers/ushqan-uya-7.jpg",
+      "coverColor": "#E2A93A"
     }
   ]
 }
