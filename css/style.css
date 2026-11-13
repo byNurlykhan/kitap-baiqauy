@@ -1025,3 +1025,12 @@ body.shielded .privacy-shield { display: flex; }
   body.reader-page > * { display: none !important; }
   body.reader-page::after { content: "Кітапты басып шығаруға болмайды."; display: block; padding: 40px; font: 700 20px/1.4 sans-serif; }
 }
+
+/* ---------- Бір кітаптың бірнеше мұқабасы ---------- */
+.cover-pick-title { margin-top: 26px; font-size: 1.1rem; }
+.cover-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 14px; margin-top: 14px; text-align: left; }
+.cover-pick-item { display: block; border-radius: 8px; transition: transform .2s ease; }
+.cover-pick-item:hover { transform: translateY(-4px); }
+.cover-pick-item:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.cover-pick-item.is-current { outline: 3px solid var(--gold); outline-offset: 3px; }
+@media (min-width: 640px) { .cover-pick { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 18px; } }
