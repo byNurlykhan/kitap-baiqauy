@@ -95,8 +95,21 @@
   }
 
   /* ---------- Оқу барысы ---------- */
-  function keyPos() { return 'kb_pos_' + bookId; }
-  function keyLoc() { return 'kb_loc_' + bookId; }
+  /* Оқыған орын кітап файлына байланады (мұқабасына емес): бір кітаптың әр түрлі мұқабаларын
+     ашқанда да оқу сол беттен жалғасады. */
+  var storeKey = bookId;
+  function useFileKey(meta) {
+    if (!meta || !meta.url) return;
+    var k = String(meta.url).replace(/^.*\//, '').replace(/\.epub.*$/i, '').replace(/[^A-Za-z0-9_-]/g, '_');
+    if (!k) return;
+    // Бұрынғы (мұқаба бойынша) сақталған орынды жаңа кілтке көшіреміз
+    ['kb_pos_', 'kb_loc_'].forEach(function (p) {
+      if (LS.get(p + k) == null && LS.get(p + bookId) != null) LS.set(p + k, LS.get(p + bookId));
+    });
+    storeKey = k;
+  }
+  function keyPos() { return 'kb_pos_' + storeKey; }
+  function keyLoc() { return 'kb_loc_' + storeKey; }
   function fontSize() { return Math.max(FONT_MIN, Math.min(FONT_MAX, LS.get('kb_font', 110))); }
 
   function markOpened() {
@@ -173,6 +186,7 @@
     status('Кітап жүктеліп жатыр…');
     var meta = await findBook();
     state.meta = meta;
+    useFileKey(meta);
     $('r-back').href = 'book.html' + (bookId ? '?id=' + encodeURIComponent(bookId) : '');
     if (!meta) {
       status('Кітап табылмады.', { error: true, html: '<a class="btn btn-primary" href="book.html">' + Icons.svg('book') + '<span>Кітаптар тізіміне</span></a>' });

@@ -638,15 +638,28 @@
       var href = function (b) { return 'book.html?id=' + encodeURIComponent(b.bookId); };
       var status = u.readFinishedAt ? 'Оқып бітірдіңіз' : u.bookOpenedAt ? 'Оқып жатырсыз' : 'Әлі ашылмаған';
 
+      // Бір кітаптың бірнеше мұқабасы ма (бәрінің файлы бірдей)?
+      var sameBook = books.length > 1 && books.every(function (b) { return b.url === books[0].url; });
+      var main = currentBook(u);
+      if (sameBook && books.indexOf(main) < 0) main = books[0];
+
       root.innerHTML =
         '<div class="step-pill reveal"><b>2/3</b><span>Кітап</span></div>' +
         '<header class="page-head reveal"><h1>Кітаптар</h1><p class="lead">Мұқабаны басып, кітапты ашыңыз.</p></header>' +
         (books.length ? '<section class="collection reveal">' +
-          '<div class="collection-meta"><span>' + icon('star') + 'Байқау кітабы</span><span>' + icon('book') + books.length + ' кітап</span></div>' +
-          '<h2>' + esc(cfg().title) + '</h2><p class="collection-sub">' + esc(status) + '</p>' +
+          '<div class="collection-meta"><span>' + icon('star') + 'Байқау кітабы</span><span>' + icon('book') +
+            (sameBook ? books.length + ' мұқаба' : books.length + ' кітап') + '</span></div>' +
+          '<h2>' + esc(sameBook ? books[0].title : cfg().title) + '</h2><p class="collection-sub">' +
+            esc(sameBook ? books[0].author + ' · ' + status : status) + '</p>' +
           fanHTML(books, true) +
-          (books.length === 1
-            ? '<a class="btn btn-primary btn-xl" href="' + href(books[0]) + '">' + icon('book') + '<span>Кітапты ашу</span></a>'
+          (books.length === 1 || sameBook
+            ? '<a class="btn btn-primary btn-xl" href="' + href(sameBook ? main : books[0]) + '">' + icon('book') + '<span>' + (u.bookOpenedAt ? 'Оқуды жалғастыру' : 'Кітапты ашу') + '</span></a>' +
+              (sameBook
+                ? '<h3 class="cover-pick-title">Ұнаған мұқабаны таңдаңыз</h3><p class="collection-sub">Мазмұны бірдей. Қай мұқабаны ашсаңыз да, оқу тоқтаған жерден жалғасады.</p>' +
+                  '<div class="cover-pick">' + books.map(function (b, i) {
+                    return '<a class="cover-pick-item' + (b === main ? ' is-current' : '') + '" href="' + href(b) + '" aria-label="' + esc(b.title) + ', ' + (i + 1) + '-мұқаба">' + coverHTML(b) + '</a>';
+                  }).join('') + '</div>'
+                : '')
             : '<ul class="collection-list">' + books.map(function (b) {
                 return '<li><a href="' + href(b) + '"><span class="cl-cover">' + coverHTML(b) + '</span><span><b>' + esc(b.title) + '</b><span>' + esc(b.author) + '</span></span>' + icon('arrowright') + '</a></li>';
               }).join('') + '</ul>') +
