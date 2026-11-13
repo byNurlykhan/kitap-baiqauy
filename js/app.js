@@ -467,6 +467,11 @@
     var t = document.getElementById('decree-tpl');
     return t ? t.innerHTML : '';
   }
+  /* «Кітап оқитын мұнайшы» марафон ережесі — index.html ішіндегі <template id="rules-tpl"> */
+  function rulesHTML() {
+    var t = document.getElementById('rules-tpl');
+    return t ? t.innerHTML : '';
+  }
 
   function renderHome() {
     var u = User.get();
@@ -490,6 +495,7 @@
       }).join('') + '</div>';
     }
     html += '<div class="reveal mt-lg">' + decreeHTML() + '</div>';
+    html += '<div class="reveal mt-lg">' + rulesHTML() + '</div>';
     $('#view-home').innerHTML = html;
     Icons.hydrate($('#view-home'));
     showView('home');
@@ -515,6 +521,8 @@
 
     var slot = $('#decree-slot');
     if (slot) { slot.innerHTML = decreeHTML(); Icons.hydrate(slot); }
+    var rslot = $('#rules-slot');
+    if (rslot) { rslot.innerHTML = rulesHTML(); Icons.hydrate(rslot); }
     var art = $('#hero-art');
     if (art) art.innerHTML = fanHTML(cfg().books, false);
 
