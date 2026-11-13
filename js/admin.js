@@ -36,7 +36,8 @@
     { id: 'report', icon: 'file', label: 'Excel есебі' }
   ];
 
-  var S = { token: store('kb_admin') || null, data: null, tab: 'dash', filter: { q: '', wp: '', st: '' }, limit: 100, pdf: null };
+  var S = { token: store('kb_admin') || null, data: null, tab: 'dash', filter: { q: '', wp: '', st: '' }, expanded: false, pdf: null };
+  var PEOPLE_PREVIEW = 10; // тізім жиналып тұрғанда көрінетін адам саны
 
   /* ================= Сервер ================= */
   async function call(action, payload, opts) {
@@ -326,7 +327,7 @@
       S.filter.q = $('#p-q').value.trim();
       S.filter.wp = $('#p-wp').value;
       S.filter.st = $('#p-st').value;
-      S.limit = 100;
+      S.expanded = false;
       list();
     }
     $('#p-q').addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(upd, 200); });
@@ -338,16 +339,28 @@
       var rows = S.data.P.filter(function (p) {
         return (!q || p.search.indexOf(q) >= 0) && (!S.filter.wp || p.wp === S.filter.wp) && (!S.filter.st || p.status === S.filter.st);
       });
-      var shown = rows.slice(0, S.limit);
+      var shown = S.expanded ? rows : rows.slice(0, PEOPLE_PREVIEW);
+      var canToggle = rows.length > PEOPLE_PREVIEW;
       var box = $('#p-list');
       box.innerHTML = '<p class="muted" style="margin-bottom:10px">Табылды: <b>' + num(rows.length) + '</b></p>' +
         (rows.length ? '<div class="table-wrap"><table class="data"><thead><tr><th>№</th><th>Аты-жөні</th><th>Жұмыс орны</th><th>ЖСН</th><th>Телефон</th><th>Тіркелген уақыты</th><th>Күйі</th><th>Ұпай</th></tr></thead><tbody>' +
           shown.map(function (p, i) {
             return '<tr><td class="num">' + (i + 1) + '</td><td><b>' + esc(p.name) + '</b></td><td>' + esc(p.wpLabel) + '</td><td class="num">' + esc(p.iin) + '</td><td class="num">' + esc(p.phone) + '</td><td class="num">' + fmtDate(p.reg) + '</td><td><span class="badge st-' + p.status + '">' + STATUS[p.status] + '</span></td><td class="num">' + (p.score == null ? '—' : esc(p.score)) + '</td></tr>';
           }).join('') + '</tbody></table></div>' : '<div class="alert alert-info">' + icon('info') + '<span>Ешкім табылмады. Іздеу сөзін немесе сүзгіні өзгертіңіз.</span></div>') +
-        (rows.length > shown.length ? '<button type="button" class="btn btn-secondary mt" id="p-more">' + icon('plus') + '<span>Тағы 100 адамды көрсету</span></button>' : '');
-      var more = $('#p-more');
-      if (more) more.addEventListener('click', function () { S.limit += 100; list(); });
+        (canToggle
+          ? '<div class="list-toggle"><span class="muted">Көрсетілді: ' + num(shown.length) + ' / ' + num(rows.length) + '</span>' +
+            '<button type="button" class="btn btn-secondary btn-sm" id="p-toggle" aria-expanded="' + S.expanded + '">' +
+            (S.expanded
+              ? icon('chevron-up') + '<span>Жию</span>'
+              : icon('chevron-down') + '<span>Толық тізімді жаю (' + num(rows.length) + ' адам)</span>') +
+            '</button></div>'
+          : '');
+      var tg = $('#p-toggle');
+      if (tg) tg.addEventListener('click', function () {
+        S.expanded = !S.expanded;
+        list();
+        if (!S.expanded) $('#p-list').scrollIntoView({ block: 'start', behavior: 'smooth' });
+      });
     }
     list();
   }
