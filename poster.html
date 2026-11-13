@@ -17,30 +17,36 @@
       font: inherit; font-size: 18px; font-weight: 700; min-height: 56px; padding: 0 28px;
       border: 0; border-radius: 10px; background: #0B1E3E; color: #fff; cursor: pointer;
     }
+    /* Бір A4 парақ: биіктігі қатаң 297 мм, ішіндегінің бәрі соған сыяды */
     .sheet {
-      width: 210mm; min-height: 297mm; margin: 0 auto 24px; padding: 18mm 16mm; background: #fff;
+      width: 210mm; height: 297mm; margin: 0 auto 24px; padding: 12mm 16mm; background: #fff; overflow: hidden;
       display: flex; flex-direction: column; align-items: center; text-align: center;
       box-shadow: 0 10px 40px rgba(11, 30, 62, .2);
+      break-inside: avoid; page-break-inside: avoid;
     }
-    .top { width: 100%; height: 6mm; background: #0B1E3E; border-bottom: 2mm solid #C9A84C; margin-bottom: 8mm; }
-    .logos { display: flex; align-items: center; justify-content: center; gap: 8mm; margin-bottom: 8mm; }
-    .logo-kitap { position: relative; overflow: hidden; height: 24mm; aspect-ratio: 810 / 330; }
+    .top { width: 100%; height: 5mm; flex: none; background: #0B1E3E; border-bottom: 1.5mm solid #C9A84C; margin-bottom: 6mm; }
+    .logos { display: flex; align-items: center; justify-content: center; gap: 7mm; margin-bottom: 6mm; flex: none; }
+    .logo-kitap { position: relative; overflow: hidden; height: 20mm; aspect-ratio: 810 / 330; }
     .logo-kitap img { position: absolute; width: 148%; height: auto; max-width: none; left: -23.5%; top: -79%; }
-    .logo-sep { width: .4mm; height: 22mm; background: #C5CBD6; }
-    .logo-emg { height: 21mm; width: auto; display: block; }
-    .eyebrow { font-size: 16pt; font-weight: 700; color: #7A5F14; text-transform: uppercase; letter-spacing: .08em; margin: 0 0 4mm; }
-    h1 { font-size: 40pt; line-height: 1.1; font-weight: 800; letter-spacing: -.02em; margin: 0 0 10mm; }
-    #qr { padding: 6mm; border: 1.2mm solid #0B1E3E; border-radius: 4mm; }
-    #qr img, #qr canvas { display: block; width: 105mm; height: 105mm; }
-    .how { font-size: 26pt; font-weight: 800; margin: 10mm 0 6mm; }
-    ol { list-style: none; margin: 0; padding: 0; width: 100%; display: grid; gap: 4mm; text-align: left; }
-    li { display: flex; align-items: center; gap: 6mm; font-size: 18pt; font-weight: 600; padding: 4mm 6mm; border-radius: 3mm; background: #EEF1F7; }
-    li b { flex: none; width: 13mm; height: 13mm; border-radius: 3mm; background: #0B1E3E; color: #C9A84C; display: grid; place-items: center; font-size: 18pt; }
-    .url { margin-top: auto; padding-top: 8mm; font-size: 12pt; color: #4A5670; word-break: break-all; }
+    .logo-sep { width: .4mm; height: 18mm; background: #C5CBD6; }
+    .logo-emg { height: 17mm; width: auto; display: block; }
+    .eyebrow { font-size: 14pt; font-weight: 700; color: #7A5F14; text-transform: uppercase; letter-spacing: .08em; margin: 0 0 3mm; }
+    h1 { font-size: 30pt; line-height: 1.1; font-weight: 800; letter-spacing: -.02em; margin: 0 0 6mm; }
+    #qr { padding: 5mm; border: 1.2mm solid #0B1E3E; border-radius: 4mm; flex: none; }
+    #qr img, #qr canvas { width: var(--qr, 90mm); height: var(--qr, 90mm); }
+    #qr img { display: block; }
+    .how { font-size: 22pt; font-weight: 800; margin: 7mm 0 4mm; }
+    ol { list-style: none; margin: 0; padding: 0; width: 100%; display: grid; gap: 3mm; text-align: left; }
+    li { display: flex; align-items: center; gap: 5mm; font-size: 16pt; font-weight: 600; padding: 3mm 5mm; border-radius: 3mm; background: #EEF1F7; }
+    li b { flex: none; width: 11mm; height: 11mm; border-radius: 3mm; background: #0B1E3E; color: #C9A84C; display: grid; place-items: center; font-size: 16pt; }
+    .url { margin: auto 0 0; padding-top: 4mm; font-size: 11pt; color: #4A5670; word-break: break-all; }
+    /* Экранда (телефонда) парақ толық көрінуі үшін кішірейеді. Басып шығаруға әсер етпейді. */
+    @media screen { .sheet { zoom: var(--fit, 1); } }
     @media print {
-      body { background: #fff; }
+      html, body { width: 210mm; height: 297mm; margin: 0; padding: 0; background: #fff; overflow: hidden; }
       .bar { display: none; }
-      .sheet { margin: 0; box-shadow: none; }
+      /* Принтер дөңгелектеуінен бос екінші парақ шықпауы үшін 0,5 мм кем */
+      .sheet { margin: 0; box-shadow: none; height: 296.5mm; }
       * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
   </style>
@@ -65,6 +71,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script>
     (function () {
+      function fit() {
+        var w = 210 * 96 / 25.4 + 24; // A4 ені пиксельмен + шет
+        document.documentElement.style.setProperty('--fit', Math.min(1, window.innerWidth / w).toFixed(3));
+      }
+      fit();
+      window.addEventListener('resize', fit);
       var q = new URLSearchParams(location.search);
       var url = q.get('u') || location.href.replace(/poster\.html.*$/, '');
       var title = q.get('t');
@@ -76,6 +88,25 @@
       } else {
         document.getElementById('qr').textContent = 'QR кітапханасы жүктелмеді. Интернетті тексеріңіз.';
       }
+
+      // Атау ұзын болса, бәрі бір A4 параққа сыйғанша QR-ды кішірейтеміз
+      function fitPage() {
+        var root = document.documentElement, sheet = document.querySelector('.sheet');
+        var fitZoom = root.style.getPropertyValue('--fit');
+        root.style.setProperty('--fit', '1');
+        var limit = 287 * 96 / 25.4; // 297 мм − 10 мм қор
+        for (var mm = 90; mm >= 60; mm -= 2) {
+          root.style.setProperty('--qr', mm + 'mm');
+          sheet.style.height = 'auto';
+          var h = sheet.scrollHeight;
+          sheet.style.height = '';
+          if (h <= limit) break;
+        }
+        root.style.setProperty('--fit', fitZoom || '1');
+      }
+      fitPage();
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitPage);
+      window.addEventListener('beforeprint', fitPage);
     })();
   </script>
 </body>
