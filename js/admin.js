@@ -536,7 +536,8 @@
     });
     $('#qr-poster').addEventListener('click', function () {
       var url = $('#qr-url').value.trim();
-      window.open('poster.html?u=' + encodeURIComponent(url) + '&t=' + encodeURIComponent(S.data.settings.contestTitle || ''), '_blank', 'noopener');
+      // v= — браузер ескі (кэштегі) плакатты ашып қоймауы үшін
+      window.open('poster.html?v=' + Date.now().toString(36) + '&u=' + encodeURIComponent(url) + '&t=' + encodeURIComponent(S.data.settings.contestTitle || ''), '_blank', 'noopener');
     });
     make();
   }
