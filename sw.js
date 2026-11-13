@@ -2,7 +2,7 @@
    байланыс үзілгенде соңғы ашылған беттерді жадтан көрсетеді.
    Әрқашан алдымен желіден алады (жаңа нұсқа бірден көрінеді), желі жоқ болса ғана жадтан береді.
    Кітап файлдары (.epub) мұнда сақталмайды — оларды оқу беті өзі сақтайды. */
-var CACHE = 'kb-shell-v1';
+var CACHE = 'kb-shell-v2';
 
 self.addEventListener('install', function () { self.skipWaiting(); });
 
@@ -19,8 +19,11 @@ self.addEventListener('fetch', function (e) {
   var url = new URL(req.url);
   if (url.origin !== self.location.origin) return; // сервер (Apps Script) және қаріптер — тікелей
   if (/\.epub$/i.test(url.pathname)) return;
+  // Беттер, скрипттер, стильдер мен деректер: браузер кэшіне сенбей, серверден тексереміз
+  // (GitHub Pages 10 минут кэштейді — сондықтан жаңартулар кешігіп көрінетін).
+  var fresh = req.mode === 'navigate' || /\.(html|js|css|json)$/i.test(url.pathname) || /\/$/.test(url.pathname);
   e.respondWith(
-    fetch(req).then(function (res) {
+    (fresh ? fetch(req, { cache: 'no-cache' }) : fetch(req)).then(function (res) {
       if (res && res.ok) {
         var copy = res.clone();
         caches.open(CACHE).then(function (c) { c.put(req, copy); });
