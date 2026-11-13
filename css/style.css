@@ -1034,3 +1034,72 @@ body.shielded .privacy-shield { display: flex; }
 .cover-pick-item:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
 .cover-pick-item.is-current { outline: 3px solid var(--gold); outline-offset: 3px; }
 @media (min-width: 640px) { .cover-pick { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 18px; } }
+
+/* ---------- Әкімші панелі: ықшам, стандартты өлшемдер ---------- */
+html:has(body.admin) { font-size: 14px; }
+body.admin { line-height: 1.45; }
+body.admin h1 { font-size: 1.55rem; }
+body.admin h2 { font-size: 1.2rem; }
+body.admin h3 { font-size: 1.05rem; }
+body.admin .ic { width: 18px; height: 18px; }
+body.admin .btn { min-height: 38px; padding: 7px 16px; font-size: .95rem; gap: 8px; border-radius: 8px; }
+body.admin .btn .ic { width: 18px; height: 18px; }
+body.admin .btn-xl { min-height: 44px; font-size: 1rem; }
+body.admin .btn-sm { min-height: 34px; padding: 5px 12px; font-size: .9rem; }
+body.admin .btn-primary { box-shadow: none; }
+body.admin .input { min-height: 38px; padding: 7px 12px; font-size: 1rem; border-width: 1px; border-radius: 8px; }
+body.admin textarea.input { min-height: 76px; }
+body.admin .select { padding-right: 34px; background-position: right 10px center; background-size: 16px; }
+body.admin .input:focus { box-shadow: 0 0 0 3px rgba(11, 30, 62, .15); }
+body.admin .field { margin-bottom: 14px; }
+body.admin .field > label { font-size: .9rem; font-weight: 600; margin-bottom: 4px; }
+body.admin .hint { font-size: .85rem; margin-bottom: 6px; }
+body.admin .card { padding: 16px 18px; border-radius: 12px; }
+body.admin .alert { padding: 10px 14px; gap: 10px; font-size: .95rem; font-weight: 500; border-radius: 10px; }
+body.admin .alert .ic { width: 20px; height: 20px; }
+body.admin .head-row { margin-bottom: 12px; }
+body.admin .mt { margin-top: 14px; }
+body.admin .chip { min-height: 34px; padding: 4px 12px; font-size: .9rem; }
+
+body.admin .control-strip { gap: 10px; margin-bottom: 16px; }
+body.admin .toggle-card { gap: 12px; padding: 10px 14px; border-width: 1px; border-radius: 12px; box-shadow: none; }
+body.admin .toggle-label { font-size: .85rem; }
+body.admin .toggle-state { font-size: 1.05rem; }
+body.admin .toggle-note { font-size: .8rem; }
+body.admin .switch { width: 48px; height: 28px; }
+body.admin .switch::after { top: 3px; left: 3px; width: 22px; height: 22px; }
+body.admin .switch[aria-checked="true"]::after { transform: translateX(20px); }
+
+body.admin .kpis { gap: 10px; margin-bottom: 14px; }
+body.admin .kpi { padding: 12px 14px; border-radius: 10px; border-top-width: 3px; }
+body.admin .kpi-value { font-size: 1.6rem; }
+body.admin .kpi-label { font-size: .85rem; }
+
+body.admin .filters { gap: 10px; margin-bottom: 10px; }
+body.admin .table-wrap { border-radius: 10px; border: 1px solid var(--line); box-shadow: none; }
+body.admin table.data { font-size: 13.5px; }
+body.admin table.data th { padding: 8px 10px; font-size: 12.5px; font-weight: 600; }
+body.admin table.data td { padding: 7px 10px; vertical-align: middle; }
+body.admin table.data tbody tr:hover td { background: #EEF2F8; }
+body.admin .badge { padding: 2px 8px; font-size: 12px; }
+body.admin .book-edit { margin-bottom: 12px; }
+body.admin .book-edit .field { margin-bottom: 10px; }
+body.admin .grid-2 { gap: 12px; }
+
+body.admin .brand { font-size: .95rem; gap: 10px; }
+body.admin .brand-mark { width: 34px; height: 34px; }
+body.admin .side-inner { gap: 14px; }
+body.admin .side-nav { gap: 2px; }
+body.admin .side-nav a, body.admin .side-nav button { min-height: 38px; padding: 0 12px; gap: 10px; font-size: .95rem; font-weight: 500; border-radius: 8px; }
+@media (min-width: 900px) {
+  body.admin .app { grid-template-columns: 220px minmax(0, 1fr); gap: 20px; padding: 16px; }
+  body.admin .sidebar { top: 16px; height: calc(100vh - 32px); padding: 16px 10px; border-radius: 14px; }
+}
+
+/* Қатысушылар тізімін жаю / жию */
+.list-toggle { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
+.list-toggle .muted { font-size: .9rem; }
+body.admin .check { padding: 8px 12px; gap: 10px; min-height: 0; border-width: 1px; border-radius: 8px; font-size: .95rem; width: auto; display: inline-flex; }
+body.admin .check .box { width: 20px; height: 20px; border-radius: 5px; border-width: 1px; }
+body.admin .check .box .ic { width: 14px; height: 14px; }
+body.admin table.data td { white-space: nowrap; }
