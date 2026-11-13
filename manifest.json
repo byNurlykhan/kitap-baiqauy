@@ -3,7 +3,7 @@
   "short_name": "Кітап оқу",
   "description": "Кітап оқу байқауы: тіркелу, кітап оқу, тест.",
   "lang": "kk",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
