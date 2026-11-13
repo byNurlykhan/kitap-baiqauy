@@ -161,7 +161,7 @@
     if (r && r.code === 'AUTH') {
       // Қатысушы серверде табылмады (мысалы, сынақ деректері өшірілген)
       User.clear(); LS.del('kb_queue');
-      location.replace('index.html');
+      location.replace('./');
     }
     return u;
   }
@@ -247,7 +247,7 @@
   }
 
   var NAV = [
-    { id: 'home', href: 'index.html', icon: 'home', label: 'Басты бет' },
+    { id: 'home', href: './', icon: 'home', label: 'Басты бет' },
     { id: 'book', href: 'book.html', icon: 'book', label: 'Кітап' },
     { id: 'test', href: 'test.html', icon: 'test', label: 'Тест' },
     { id: 'result', href: 'result.html', icon: 'award', label: 'Менің нәтижем' }
@@ -267,7 +267,7 @@
     document.title = (PAGE_TITLES[page] || '') + ' · ' + c.title;
 
     // Логотиптер қатары: «Кітап оқитын ұлт» және «ЕмбіМұнайГаз»
-    var logos = '<a class="logos" href="index.html" aria-label="' + esc(c.title) + ' — басты бет">' +
+    var logos = '<a class="logos" href="./" aria-label="' + esc(c.title) + ' — басты бет">' +
       '<span class="logo-kitap"><img src="img/logo.jpg" alt="Кітап оқитын ұлт" width="1200" height="849"></span>' +
       '<span class="logo-sep" aria-hidden="true"></span>' +
       '<img class="logo-emg" src="img/emg.png" alt="ЕмбіМұнайГаз" width="1200" height="330"></a>';
@@ -384,7 +384,7 @@
     if (!yes) return;
     try { await Promise.race([API.Queue.flush(), new Promise(function (r) { setTimeout(r, 4000); })]); } catch (e) { /* елемейміз */ }
     User.clear();
-    location.href = 'index.html';
+    location.href = './';
   }
 
   document.addEventListener('click', function (e) {
@@ -777,7 +777,7 @@
       }
       if (!c.testOpen) {
         root.innerHTML = state('warn', 'clock', 'Тест әзірге жабық', 'Ашылған кезде хабарлаймыз.',
-          '<a class="btn btn-secondary" href="index.html">' + icon('home') + '<span>Басты бетке</span></a>');
+          '<a class="btn btn-secondary" href="./">' + icon('home') + '<span>Басты бетке</span></a>');
         return;
       }
       var once = (c.attempts || 1) <= 1 ? 'Тестті тек бір рет тапсыруға болады.' : 'Тестті ' + c.attempts + ' рет тапсыруға болады.';
@@ -869,7 +869,7 @@
       }
       if (!r.top || !r.top.length) {
         root.innerHTML = head + '<section class="card state reveal"><div class="state-icon tone-accent">' + icon('trophy') + '</div><h2>Нәтижелер әлі жоқ</h2><p>Тест өткен соң үздіктер осы жерде шығады.</p>' +
-          '<a class="btn btn-secondary" href="index.html">' + icon('home') + '<span>Басты бетке</span></a></section>';
+          '<a class="btn btn-secondary" href="./">' + icon('home') + '<span>Басты бетке</span></a></section>';
         return;
       }
       root.innerHTML = head + '<ol class="rank-list">' + r.top.map(function (x, i) {
@@ -884,7 +884,11 @@
   function init() {
     Icons.hydrate(document);
     var page = document.body.getAttribute('data-page');
-    if (page !== 'home' && !User.get()) { location.replace('index.html'); return; }
+    // Мекенжай жолында «/index.html» көрсетпейміз: embikitap.kz/index.html → embikitap.kz/
+    if (page === 'home' && /\/index\.html$/i.test(location.pathname) && history.replaceState) {
+      history.replaceState(null, '', location.pathname.replace(/index\.html$/i, '') + location.search + location.hash);
+    }
+    if (page !== 'home' && !User.get()) { location.replace('./'); return; }
     if (!API.configured()) {
       UI.banner('Сайт серверге қосылмаған. js/config.js файлына Apps Script сілтемесін қойыңыз.');
     }

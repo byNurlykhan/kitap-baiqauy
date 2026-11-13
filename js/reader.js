@@ -15,7 +15,7 @@
   function $(id) { return document.getElementById(id); }
 
   var user = LS.get('kb_user');
-  if (!user) { location.replace('index.html'); return; }
+  if (!user) { location.replace('./'); return; }
   Icons.hydrate(document);
 
   var bookId = new URLSearchParams(location.search).get('id') || '';
