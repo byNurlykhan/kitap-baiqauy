@@ -258,7 +258,13 @@
         cur.setDate(cur.getDate() + 1);
       }
     }
-    st.wps = Object.keys(wp).map(function (k) { return wp[k]; }).sort(function (x, y) { return y.reg - x.reg; });
+    // Бекітілген 7 жұмыс орнының бәрі өз ретімен шығады (қатысушысы жоғы да 0 болып көрінеді)
+    var order = S.data.workplaces || [];
+    if (order.length) {
+      st.wps = order.map(function (k) { return wp[k] || { name: k, reg: 0, read: 0, tested: 0 }; });
+    } else {
+      st.wps = Object.keys(wp).map(function (k) { return wp[k]; }).sort(function (x, y) { return y.reg - x.reg; });
+    }
     return st;
   }
 
@@ -319,11 +325,12 @@
   function tabPeople(root) {
     var wps = {};
     listedP().forEach(function (p) { wps[p.wp] = 1; });
+    var wpOrder = (S.data.workplaces || []).length ? S.data.workplaces : Object.keys(wps).sort();
     root.innerHTML =
       '<div class="head-row"><h1>Қатысушылар</h1></div>' +
       '<div class="filters">' +
       '<input class="input" id="p-q" type="search" placeholder="Аты немесе ЖСН бойынша іздеу" value="' + esc(S.filter.q) + '" aria-label="Іздеу">' +
-      '<select class="input select" id="p-wp" aria-label="Жұмыс орны"><option value="">Барлық жұмыс орны</option>' + Object.keys(wps).sort().map(function (w) {
+      '<select class="input select" id="p-wp" aria-label="Жұмыс орны"><option value="">Барлық жұмыс орны</option>' + wpOrder.map(function (w) {
         return '<option value="' + esc(w) + '"' + (w === S.filter.wp ? ' selected' : '') + '>' + esc(w) + '</option>';
       }).join('') + '</select>' +
       '<select class="input select" id="p-st" aria-label="Күйі"><option value="">Барлық күй</option>' + Object.keys(STATUS).map(function (k) {
