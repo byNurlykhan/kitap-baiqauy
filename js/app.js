@@ -413,8 +413,8 @@
     var cur = sel.value;
     var list = (cfg().workplaces || []).filter(function (w) { return w !== OTHER; });
     sel.innerHTML = '<option value="">— Тізімнен таңдаңыз —</option>' +
-      list.map(function (w) { return '<option value="' + esc(w) + '">' + esc(w) + '</option>'; }).join('') +
-      '<option value="' + OTHER + '">' + OTHER + '</option>';
+      // «Басқа» нұсқасы алынып тасталды: тек ұйымдастырушы бекіткен тізім көрсетіледі
+      list.map(function (w) { return '<option value="' + esc(w) + '">' + esc(w) + '</option>'; }).join('');
     sel.value = cur;
   }
 
