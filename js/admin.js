@@ -222,8 +222,17 @@
   });
 
   /* ================= Басты бет (дашборд) ================= */
+  /* Тек бекітілген жұмыс орындарының қатысушылары. Тізімде жоқ жұмыс орнын
+     (мысалы, ертеректе «Басқа» деп тіркелгендер) дашборд пен қатысушылар бетінде көрсетпейміз.
+     Олардың деректері Google кестесінде сақталады. */
+  function listedP() {
+    var ok = S.data.workplaces || [];
+    if (!ok.length) return S.data.P;
+    return S.data.P.filter(function (p) { return ok.indexOf(p.wp) >= 0; });
+  }
+
   function stats() {
-    var P = S.data.P;
+    var P = listedP();
     var st = { total: P.length, opened: 0, read: 0, tested: 0, avg: null, daily: [], wps: [] };
     var sum = 0, n = 0, days = {}, wp = {};
     P.forEach(function (p) {
@@ -309,7 +318,7 @@
   /* ================= Қатысушылар ================= */
   function tabPeople(root) {
     var wps = {};
-    S.data.P.forEach(function (p) { wps[p.wp] = 1; });
+    listedP().forEach(function (p) { wps[p.wp] = 1; });
     root.innerHTML =
       '<div class="head-row"><h1>Қатысушылар</h1></div>' +
       '<div class="filters">' +
@@ -336,7 +345,7 @@
 
     function list() {
       var q = S.filter.q.toLowerCase();
-      var rows = S.data.P.filter(function (p) {
+      var rows = listedP().filter(function (p) {
         return (!q || p.search.indexOf(q) >= 0) && (!S.filter.wp || p.wp === S.filter.wp) && (!S.filter.st || p.status === S.filter.st);
       });
       var shown = S.expanded ? rows : rows.slice(0, PEOPLE_PREVIEW);
